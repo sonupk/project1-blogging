@@ -76,6 +76,7 @@ const createBlog = async function (req, res) {
 		}
 
 		// Validation Ends
+		//? shouldn't it be isPublished==="true", because if its false in the body it will still update the publishedAt field
 		if (isPublished) {
 			requestBody.publishedAt = new Date();
 		}
