@@ -14,7 +14,7 @@ const getBlogs = async function (req, res) {
 		if (specificTag) obj.tags = specificTag;
 		if (subcategory) obj.subcategory = subcategory;
 		console.log(obj)
-		const allBlogs = await BlogModel.find().populate("authorId").find(obj);
+		const allBlogs = await BlogModel.find(obj);
 		console.log(allBlogs)
 		if (allBlogs.length === 0)
 			return res.status(404).send({ status: false, msg: "Resource Not Found" });
