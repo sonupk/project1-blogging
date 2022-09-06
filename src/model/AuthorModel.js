@@ -4,21 +4,21 @@ const mongoose = require('mongoose')
 
 const AuthorModel = new mongoose.Schema({
     
- "fname": {type:String,
+ fname: {type:String,
            required:true},
 
-"lname": {type:String,
+lname: {type:String,
           required:true},
 
-"title": {type:String,
+title: {type:String,
          required:true,
          enum:["Mr", "Mrs", "Miss"]},
 
-"email": {type: mongoose.SchemaTypes.Email,
+email: {type: String,
           unique:true,
           required:true}, 
-"password":  mongoose.Schema.Types.Mixed
+password:  mongoose.Schema.Types.Mixed
 
 })
 
-module.export = mongoose.model("authorModel",AuthorModel)
+module.exports = mongoose.model("authorModel",AuthorModel)

@@ -15,12 +15,14 @@ authorId: {type:ObjectId,
           required:true},
 
 tags: {type :[String]}, 
+
 category: {type:[String], 
           required:true}, 
 
 subcategory: {type:[String]}, 
 
-deletedAt: {type:Date},
+deletedAt: {type:Date,
+            default:Date.now},
             
 
 isDeleted: {type:Boolean,
@@ -33,4 +35,4 @@ isPublished: {type:boolean,
 
 },{timestamps:true})
 
-module.exports = mongoose.model('blogsmodel',BlogsModels)
+module.exports = mongoose.model('blogsmodel',BlogsModels) 
