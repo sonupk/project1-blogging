@@ -1,7 +1,7 @@
-const blogModel = require("../modelPR/BlogsModel")
+const blogModel = require("../models/blogModel")
 const mongoose = require("mongoose")
 const ObjectId = mongoose.Types.ObjectId;
-const authorModel = require("../modelPR/AuthorModel")
+const authorModel = require("../models/authorModel")
 
 // FIRST HANDLER
     const createBlog = async function(req,res){
@@ -89,5 +89,74 @@ const authorModel = require("../modelPR/AuthorModel")
         }
     
     }
+
+// 4th HANDLER
+    const updateBlog = async function(req,res){
+        try{
+            const blogId = req.params.blogId
+            const updateData = req.body
+
+            //destructuring
+            const {title,body,tags,subcategory}=updateData
+
+            //finding blog
+            const blog = await blogModel.find({_id:blogId})
+            if(blog.length==0||blog["isDeleted"]=="false"){
+                res.status(404).send({status:false, msg:"Blog ID is not valid"})
+                return
+            }
+
+            //adding data in obj which are needed to be update
+            let obj={}
+            obj.isPublished=true
+            obj.publishedAt=new Date()
+
+            if(title){ 
+                //validation for title
+                if(typeof(title)!="string"||title.trim().length==0){
+                    res.status(400).send({status:false, msg:"Invalid content in title"})
+                    return
+                }
+                obj.title=title
+            }
+            if(body){
+                //validation for body
+                if(typeof(body)!="string"||body.trim().length==0){
+                    res.status(400).send({status:false, msg:"Invalid content in body"})
+                    return
+                }
+                obj.body=body
+
+            }
+            if(tags){
+                //validation for tags
+                if(typeof(tags)!="string"||tags.trim().length==0){
+                    res.status(400).send({status:false, msg:"Invalid content in tags"})
+                    return
+                }
+                let arr = blog.tags
+                arr.push(tags)
+                obj.tags=arr
+            }
+            if(subcategory){
+                //validation for subcategory
+                if(typeof(subcategory)!="string"||subcategory.trim().length==0){
+                    res.status(400).send({status:false, msg:"Invalid content in subcategory"})
+                    return
+                }
+                let arr = blog.subcategory
+                arr.push(subcategory)
+                obj.subcategory=arr
+            }
+
+            //Updation
+            const updatedBlog = await blogModel.findByIdAndUpdate({blogId},{obj},{new:true})
+            res.status(200).send({status:true, data:updatedBlog})
+            
+        }
+        catch(err){
+            res.status(500).send({status:false,msg:err.message})
+        }
+}
 
     module.exports={createBlog}
