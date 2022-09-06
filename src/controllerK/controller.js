@@ -9,10 +9,10 @@ const getBlogs = async function (req, res) {
 		const specificTag = req.query.specificTag;
 		const subcategory = req.query.subcategory;
 		let obj = { isDeleted: false, isPublished: true };
-		if (ObjectId.isValid(authorId)) obj["authorId._id"] = authorId;
-		if (typeof category === "string") obj.category = category;
-		if (typeof specificTag === "string") obj.tags = specificTag;
-		if (typeof subcategory === "string") obj.subcategory = subcategory;
+		if (authorId) obj["authorId._id"] = authorId;
+		if (category) obj.category = category;
+		if (specificTag) obj.tags = specificTag;
+		if (subcategory) obj.subcategory = subcategory;
 		const allBlogs = await BlogModel.find().populate("authorId").find(obj);
 		if (allBlogs.length === 0)
 			return res.status(404).send({ status: false, msg: "Resource Not Found" });
