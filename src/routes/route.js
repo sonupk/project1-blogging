@@ -9,5 +9,6 @@ const getBlogValidation = require("../middlewareK/middleware");
 router.post("/authors", authorController.createAuthor);
 router.post("/blogs", blogController.createBlog);
 router.get("/blogs", getBlogValidation.getBlogValidation, getBlog.getBlogs);
+router.delete("/blogs/:blogId",getBlog.deleteBlogById)
 
 module.exports = router;
