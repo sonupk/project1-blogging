@@ -76,7 +76,7 @@ const createBlog = async function (req, res) {
 		}
 
 		// Validation Ends
-		//? shouldn't it be isPublished==="true", because if its false in the body it will still update the publishedAt field
+		//*? shouldn't it be isPublished==="true", because if its false in the body it will still update the publishedAt field
 		if (isPublished) {
 			requestBody.publishedAt = new Date();
 		}
@@ -134,6 +134,8 @@ const updateBlog = async function (req, res) {
 				return;
 			}
 			let arr = blog.tags;
+			//*TODO: let uniqueArr=[new Set(arr)]
+			//**(This will remove the duplicates from the input array) */
 			arr.push(tags);
 			obj.tags = arr;
 		}
@@ -146,6 +148,8 @@ const updateBlog = async function (req, res) {
 				return;
 			}
 			let arr = blog.subcategory;
+			//*TODO: let uniqueArr=[new Set(arr)]
+			//**(This will remove the duplicates from the input array) */
 			arr.push(subcategory);
 			obj.subcategory = arr;
 		}
