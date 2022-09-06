@@ -1,6 +1,6 @@
-const BlogModel = require("../modelPR/blogmodel.js.js");
 const mongoose = require("mongoose");
-const ObjectId = mongoose.Types.ObjectId;
+
+const BlogModel = require("../modelPR/BlogsModel");
 
 const getBlogs = async function (req, res) {
 	try {
@@ -9,16 +9,18 @@ const getBlogs = async function (req, res) {
 		const specificTag = req.query.specificTag;
 		const subcategory = req.query.subcategory;
 		let obj = { isDeleted: false, isPublished: true };
-		if (authorId) obj["authorId._id"] = authorId;
+		if (authorId) obj["authorId"] = authorId;
 		if (category) obj.category = category;
 		if (specificTag) obj.tags = specificTag;
 		if (subcategory) obj.subcategory = subcategory;
+		console.log(obj)
 		const allBlogs = await BlogModel.find().populate("authorId").find(obj);
+		console.log(allBlogs)
 		if (allBlogs.length === 0)
 			return res.status(404).send({ status: false, msg: "Resource Not Found" });
-		res.status(200).send(allBlogs);
+		res.status(200).send({status:true,data:allBlogs});
 	} catch (error) {
-		res.status(500).send({ msg: error });
+		res.status(500).send({status:false, msg: error.message });
 	}
 };
 

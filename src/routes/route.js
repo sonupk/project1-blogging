@@ -1,12 +1,13 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-// const authorBody = require('../middlewarePR/authorMiddleware')
-const authorController = require('../controller(P)/authorController')
-const blogController = require("../controller(P)/blogController")
+const authorController = require("../controller(P)/authorController");
+const blogController = require("../controller(P)/blogController");
+const getBlog = require("../controllerK/controller");
+const getBlogValidation = require("../middlewareK/middleware");
 
-router.post('/authors',authorController.createAuthor)
-router.post("/blogs",blogController.createBlog)
+router.post("/authors", authorController.createAuthor);
+router.post("/blogs", blogController.createBlog);
+router.get("/blogs", getBlogValidation.getBlogValidation, getBlog.getBlogs);
 
-
-module.exports = router;  
+module.exports = router;
