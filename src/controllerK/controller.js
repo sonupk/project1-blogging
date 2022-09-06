@@ -1,4 +1,4 @@
-const BlogModel = require("../model/blogmodel.js");
+const BlogModel = require("../modelPR/blogmodel.js.js");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 
