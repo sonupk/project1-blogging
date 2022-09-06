@@ -16,13 +16,13 @@ authorId: {type:ObjectId,
 
 tags: {type :[String]}, 
 
-category: {type:[String], 
+category: {type:String, 
           required:true}, 
 
 subcategory: {type:[String]}, 
 
 deletedAt: {type:Date,
-            default:Date.now},
+            default:null},
             
 
 isDeleted: {type:Boolean,
@@ -30,7 +30,7 @@ isDeleted: {type:Boolean,
 
 publishedAt: {type:Date},
 
-isPublished: {type:boolean, 
+isPublished: {type:Boolean, 
               default: false}
 
 },{timestamps:true})

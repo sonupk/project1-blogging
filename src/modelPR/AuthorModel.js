@@ -8,7 +8,7 @@ const AuthorModel = new mongoose.Schema({
 	title: { type: String, required: true, enum: ["Mr", "Mrs", "Miss"] },
 
 	email: { type: String, unique: true, required: true },
-	password: mongoose.Schema.Types.Mixed,
-});
+	password: String
+},{timestamps:true});
 
 module.exports = mongoose.model("authorModel", AuthorModel);
