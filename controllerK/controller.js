@@ -1,4 +1,4 @@
-const BlogModel = require("../modelPR/BlogsModel");
+const BlogModel = require("../src/models/blogModel");
 const ObjectId=require("mongoose").Types.ObjectId
 
 const getBlogs = async function (req, res) {

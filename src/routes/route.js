@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 
-const authorController = require("../controller(P)/authorController");
-const blogController = require("../controller(P)/blogController");
-const getBlog = require("../controllerK/controller");
-const BlogValidation = require("../middlewareK/middleware");
-const authUser=require("../authK/auth")
+const authorController = require("../controller/authorController");
+const blogController = require("../controller/blogController");
+const getBlog = require("../../controllerK/controller");
+const BlogValidation = require("../middleware/middleware");
+const authUser=require("../middleware/auth")
 
 router.use("/blogs",authUser.userAuthentication)
 

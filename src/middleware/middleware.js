@@ -62,7 +62,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 		req.modifiedQuery = dynamicObj;
 		next();
 	} catch (error) {
-		res.status(500).send({ msg: error });
+		res.status(500).send({ msg: error.message });
 	}
 };
 
