@@ -21,7 +21,7 @@ const deleteBlogById = async function (req, res) {
 			{ _id: blogId, isDeleted: false },
 			{ isDeleted: true, deletedAt: new Date() }
 		);
-		return (deletedBlog)
+		return deletedBlog
 			? res.status(200).send()
 			: res.status(404).send({ status: false, msg: "Resource Not Found" });
 	} catch (error) {

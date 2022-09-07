@@ -32,7 +32,7 @@ const createBlog = async function (req, res) {
 		}
 
 		//4.validation for tags
-				if (tags) {
+		if (tags) {
 			if (typeof tags != "string" || tags.trim().length == 0) {
 				res.status(400).send({ status: false, msg: "invalid tags" });
 				return;
@@ -149,7 +149,7 @@ const updateBlog = async function (req, res) {
 			}
 			let arr = blog.subcategory;
 			//*TODO: let uniqueArr=[new Set(arr)]
-			//**(This will remove the duplicates from the input array) 
+			//**(This will remove the duplicates from the input array)
 			arr.push(subcategory);
 			obj.subcategory = arr;
 		}
