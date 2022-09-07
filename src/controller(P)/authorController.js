@@ -12,7 +12,7 @@ const createAuthor = async function (req, res) {
       res.status(400).send({ status: false, msg: "fname is required" });
       return;
     }
-
+    
     //2.validation on lname
     if (!lname || typeof (lname) != "string" || lname.trim().length == 0 ) {
       res.status(400).send({ status: false, msg: "lname is required" });

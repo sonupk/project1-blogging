@@ -5,23 +5,33 @@ const getBlogValidation = async function (req, res, next) {
 	try {
 		const authorId = req.query.authorId;
 		const category = req.query.category;
-		const specificTag = req.query.specificTag;
+		const tags = req.query.specificTag;
 		const subcategory = req.query.subcategory;
 		if (authorId) {
 			if (!ObjectId.isValid(authorId))
-				return res.status(400).send({ msg: "Invalid Object Id" });
+				return res
+					.status(400)
+					.send({ status: false, msg: "Invalid Object Id" });
 		}
 		if (category) {
-			if (typeof category !== "string")
-				return res.status(400).send({ msg: "Invalid category" });
+			if (typeof category != "string" || category.length == 0) {
+				return res
+					.status(400)
+					.send({ status: false, msg: "category is invalid" });
+			}
 		}
-		if (specificTag) {
-			if (typeof specificTag !== "string")
-				return res.status(400).send({ msg: "Invalid tag(s)" });
+		if (tags) {
+			if (typeof tags != "string" || tags.trim().length == 0) {
+				return res
+					.status(400)
+					.send({ status: false, msg: "Invalid content in tags" });
+			}
 		}
 		if (subcategory) {
-			if (typeof subcategory !== "string")
-				return res.status(400).send({ msg: "Invalid subcategory" });
+			if (typeof subcategory != "string" || subcategory.trim().length == 0)
+				return res
+					.status(400)
+					.send({ status: false, msg: "Invalid content in subcategory" });
 		}
 		next();
 	} catch (error) {
