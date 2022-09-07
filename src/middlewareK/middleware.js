@@ -7,6 +7,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 		const category = req.query.category;
 		const tags = req.query.tags;
 		const subcategory = req.query.subcategory;
+
 		const dynamicObj = {};
 		if (authorId) {
 			if (!ObjectId.isValid(authorId)) {

@@ -14,5 +14,7 @@ router.post("/authors", authorController.createAuthor);
 router.post("/blogs", blogController.createBlog);
 router.get("/blogs", BlogValidation.BlogValidationFromQuery, getBlog.getBlogs);
 router.delete("/blogs/:blogId",authUser.userAuthorisation, getBlog.deleteBlogById);
+router.delete("/blogs",BlogValidation.BlogValidationFromQuery, getBlog.deleteBlogById); //by query params
+
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const BlogModel = require("../modelPR/BlogsModel");
+const ObjectId=require("mongoose").Types.ObjectId
 
 const getBlogs = async function (req, res) {
 	try {
@@ -17,6 +18,11 @@ const getBlogs = async function (req, res) {
 const deleteBlogById = async function (req, res) {
 	try {
 		const blogId = req.params.blogId;
+		if (!ObjectId.isValid(blogId)) {
+			return res
+				.status(400)
+				.send({ status: false, msg: "BlogId in not valid" });
+		}
 		const deletedBlog = await BlogModel.findOneAndUpdate(
 			{ _id: blogId, isDeleted: false },
 			{ isDeleted: true, deletedAt: new Date() }
