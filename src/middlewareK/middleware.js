@@ -1,32 +1,68 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 
-const getBlogValidation = async function (req, res, next) {
+const BlogValidationFromQuery = async function (req, res, next) {
 	try {
 		const authorId = req.query.authorId;
 		const category = req.query.category;
-		const specificTag = req.query.specificTag;
+		const tags = req.query.tags;
 		const subcategory = req.query.subcategory;
+		const dynamicObj = {};
 		if (authorId) {
-			if (!ObjectId.isValid(authorId))
-				return res.status(400).send({ msg: "Invalid Object Id" });
+			if (!ObjectId.isValid(authorId)) {
+				return res
+					.status(400)
+					.send({ status: false, msg: "Invalid Object Id" });
+			} else {
+				dynamicObj.authorId = authorId;
+			}
 		}
 		if (category) {
-			if (typeof category !== "string")
-				return res.status(400).send({ msg: "Invalid category" });
+			if (typeof category != "string" || category.length == 0) {
+				return res
+					.status(400)
+					.send({ status: false, msg: "category is invalid" });
+			} else {
+				dynamicObj.category = category;
+			}
 		}
-		if (specificTag) {
-			if (typeof specificTag !== "string")
-				return res.status(400).send({ msg: "Invalid tag(s)" });
+		if (tags) {
+			if (typeof tags != "string" || tags.trim().length == 0) {
+				return res.status(400).send({ status: false, msg: "Invalid tags" });
+			}
+			let arrOfTags = tags
+				.split(",")
+				.map((x) => x.trim())
+				.filter((x) => x.length > 0);
+			if (arrOfTags.length == 0) {
+				return res.status(400).send({ status: false, msg: "Invalid tags" });
+			} else {
+				dynamicObj.tags = { $all: arrOfTags };
+			}
 		}
 		if (subcategory) {
-			if (typeof subcategory !== "string")
-				return res.status(400).send({ msg: "Invalid subcategory" });
+			if (typeof subcategory != "string" || subcategory.trim().length == 0) {
+				return res
+					.status(400)
+					.send({ status: false, msg: "Invalid subcategory" });
+			}
+			let arrOfsubcategory = subcategory
+				.split(",")
+				.map((x) => x.trim())
+				.filter((x) => x.length > 0);
+			if (arrOfsubcategory.length == 0) {
+				return res
+					.status(400)
+					.send({ status: false, msg: "Invalid subcategory" });
+			} else {
+				dynamicObj.subcategory = { $all: arrOfsubcategory };
+			}
 		}
+		req.modifiedQuery = dynamicObj;
 		next();
 	} catch (error) {
 		res.status(500).send({ msg: error });
 	}
 };
 
-module.exports = { getBlogValidation };
+module.exports = { BlogValidationFromQuery };
