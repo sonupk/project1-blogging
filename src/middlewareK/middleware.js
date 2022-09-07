@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 
-const getBlogValidation = async function (req, res, next) {
+const BlogValidationFromQuery = async function (req, res, next) {
 	try {
 		const authorId = req.query.authorId;
 		const category = req.query.category;
@@ -65,4 +65,4 @@ const getBlogValidation = async function (req, res, next) {
 	}
 };
 
-module.exports = { getBlogValidation };
+module.exports = { BlogValidationFromQuery };
