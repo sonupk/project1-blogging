@@ -26,12 +26,10 @@ const createAuthor = async function (req, res) {
 
 		//3.validation on title
 		if (!validation.isValidTitle(title)) {
-			res
-				.status(400)
-				.send({
-					status: false,
-					msg: "Title must be one of these-'Mr','Mrs','Miss'",
-				});
+			res.status(400).send({
+				status: false,
+				msg: "Title must be one of these-'Mr','Mrs','Miss'",
+			});
 			return;
 		}
 
@@ -60,13 +58,11 @@ const createAuthor = async function (req, res) {
 		}
 		// Validation Ends
 		const newAuthor = await authorModel.create(requestBody);
-		res
-			.status(201)
-			.send({
-				status: true,
-				mag: "Data created successfully",
-				data: newAuthor,
-			});
+		res.status(201).send({
+			status: true,
+			mag: "Data created successfully",
+			data: newAuthor,
+		});
 	} catch (err) {
 		res.status(500).send({ status: false, msg: err.message });
 	}
