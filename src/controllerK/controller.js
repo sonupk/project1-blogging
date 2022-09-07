@@ -2,6 +2,10 @@ const BlogModel = require("../modelPR/BlogsModel");
 
 const getBlogs = async function (req, res) {
 	try {
+		//TODO:const filterObj=req.query (Doing this will remove lines 6-14)
+		//TODO:filterObj.isDeleted=false
+		//TODO:filterObj.isPublished=true
+
 		const authorId = req.query.authorId;
 		const category = req.query.category;
 		const specificTag = req.query.specificTag;
@@ -11,9 +15,7 @@ const getBlogs = async function (req, res) {
 		if (category) obj.category = category;
 		if (specificTag) obj.tags = specificTag;
 		if (subcategory) obj.subcategory = subcategory;
-		console.log(obj);
 		const allBlogs = await BlogModel.find(obj);
-		console.log(allBlogs);
 		if (allBlogs.length === 0)
 			return res.status(404).send({ status: false, msg: "Resource Not Found" });
 		return res.status(200).send({ status: true, data: allBlogs });
@@ -29,6 +31,7 @@ const deleteBlogById = async function (req, res) {
 			{ _id: blogId, isDeleted: false },
 			{
 				isDeleted: true,
+				deletedAt: new Date(),
 			}
 		);
 		return deletedBlog
