@@ -38,7 +38,10 @@ const createBlog = async function (req, res) {
 				res.status(400).send({ status: false, msg: "invalid tags" });
 				return;
 			}
-			let arrOfTags = tags.split(",").filter((x) => x.trim().length > 0);
+			let arrOfTags = tags
+				.split(",")
+				.map((x) => x.trim())
+				.filter((x) => x.trim().length > 0);
 			arrOfTags = [...new Set(arrOfTags)];
 			if (arrOfTags.length == 0) {
 				res.status(400).send({ status: false, msg: "Invalid tags" });
@@ -62,6 +65,7 @@ const createBlog = async function (req, res) {
 			}
 			let arrOfsubcategory = subcategory
 				.split(",")
+				.map((x) => x.trim())
 				.filter((x) => x.trim().length > 0);
 			arrOfsubcategory = [...new Set(arrOfsubcategory)];
 			if (arrOfsubcategory.length == 0) {
@@ -138,7 +142,10 @@ const updateBlog = async function (req, res) {
 				res.status(400).send({ status: false, msg: "Invalid content in tags" });
 				return;
 			}
-			let arr = tags.split(",").filter((x) => x.trim().length > 0);
+			let arr = tags
+				.split(",")
+				.map((x) => x.trim())
+				.filter((x) => x.trim().length > 0);
 			//obj={$addToSet:{}}
 			arr = [...new Set(arr)];
 			obj["$addToSet"]["tags"] = [...arr];
@@ -154,7 +161,9 @@ const updateBlog = async function (req, res) {
 					.send({ status: false, msg: "Invalid content in subcategory" });
 				return;
 			}
-			let arr = subcategory.split(",").filter((x) => x.trim().length > 0);
+			let arr = subcategory.split(",")
+      .map((x) => x.trim())
+      .filter((x) => x.trim().length > 0);
 			arr = [...new Set(arr)];
 			obj["$addToSet"]["subcategory"] = { $each: [...arr] };
 		}
