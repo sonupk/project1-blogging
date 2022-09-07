@@ -14,7 +14,7 @@ const getBlogs = async function (req, res) {
 		return res.status(500).send({ status: false, msg: error.message });
 	}
 };
-
+ 
 const deleteBlogById = async function (req, res) {
 	try {
 		const blogId = req.params.blogId;
