@@ -10,11 +10,11 @@ const userAuthentication = async function (req, res, next) {
 			return res
 				.status(401)
 				.send({ status: false, msg: "Please provide a token" });
-		let decodedToken = await jwt.verify(token, secretkey);
-		if (!decodedToken)
-			return res.status(401).send({ status: false, msg: "Unauthenticated" });
-		req["x-api-key"] = decodedToken;
-		next();
+		let decodedToken = await jwt.verify(token, secretkey, (err) => {
+			if (err) res.status(401).send(err.message);
+			req["x-api-key"] = decodedToken;
+			next();
+		});
 	} catch (error) {
 		res.status(500).send({ status: false, msg: error.message });
 	}

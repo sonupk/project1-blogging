@@ -213,23 +213,33 @@ const deleteBlogById = async function (req, res) {
 	}
 };
 
+// if (!authorId) {
+// 	authorId = authorLoggedIn;
+// 	req.query.authorId = authorId;
+// }
+
 const deleteFromQuery = async function (req, res) {
 	try {
 		let data = req.modifiedQuery;
 		data.isDeleted = false;
-		data.authorId = req["x-api-key"].authorId;
-		let find = await blogsModel.findOne(data);
+		if (!data.authorId) data.authorId = req["x-api-key"].authorId;
+		if (!ObjectId.isValid(data.authorId)) {
+			return res
+				.status(400)
+				.send({ status: false, msg: "BlogId in not valid" });
+		}
+		let find = await blogModel.findOne(data);
 		if (!find) {
 			return res.status(404).send({ msg: "blog not found" });
 		}
-		let update = await BlogsModel.findOneAndUpdate(
+		let update = await blogModel.findOneAndUpdate(
 			data,
 			{ $set: { isDeleted: true, deletedAt: Date.now() } },
 			{ new: true }
 		);
 		res.status(200).send({ msg: update });
-	} catch (err) {
-		res.status(500).send({ msg: "server down" });
+	} catch (error) {
+		res.status(500).send({ status: false, msg: error.message });
 	}
 };
 
