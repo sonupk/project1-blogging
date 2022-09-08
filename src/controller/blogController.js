@@ -242,7 +242,7 @@ const deleteFromQuery = async function (req, res) {
 		}
 		let update = await blogModel.updateMany(
 			data,
-			{ $set: { isDeleted: true, deletedAt: Date.now() } },
+			{ $set: { isDeleted: true, deletedAt: new Date() } },
 			{ new: true }
 		);
 		res.status(200).send({
