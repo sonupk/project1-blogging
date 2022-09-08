@@ -46,6 +46,10 @@ const createAuthor = async function (req, res) {
     }
 
     //5.validation on password
+    if(!password){
+      res.status(400).send({ status: false, msg: "password must be present" });
+      return;
+    }
     if (!validation.isValidPassword(password)) {
       res.status(400).send({
         status: false,
@@ -70,7 +74,33 @@ const authorLogin = async function(req,res){
   try{
     const requestBody = req.body
     const email=requestBody.email
-    const password=request.password
+    const password=requestBody.password
+
+    //Validation on email
+    if (!email) {
+      res.status(400).send({ status: false, msg: "email must be present" });
+      return;
+    }
+    if (!validation.isValidEmail(email)) {
+      res.status(400).send({ status: false, msg: "Invalid emailID" });
+      return;
+    }
+
+    //validation on password
+    if(!password){
+      res.status(400).send({ status: false, msg: "password must be present" });
+      console.log(password)
+      return;
+    }
+    if (!validation.isValidPassword(password)) {
+      res.status(400).send({
+        status: false,
+        msg: "password must contain alteast one number and one special character.",
+      });
+      return;
+    }
+
+
 
     // Checking for authentication
 

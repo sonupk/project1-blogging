@@ -11,10 +11,11 @@ const createBlog = async function (req, res) {
         // Destructuring
         let { title, body, authorId, tags, category, subcategory, isPublished } = requestBody;
   
-    
+        //check Authorization
+        
         //Validation Starts
         //1.validation for title
-        if (!validation.isValidTitle(title)) {
+        if (!validation.isValidString(title)) {
           res.status(400).send({ status: false, msg: "title is required" });
           return;
         }
@@ -25,50 +26,55 @@ const createBlog = async function (req, res) {
           return;
         }
     
-        //3.validation for authorID
-        const author = await authorModel.findById(authorId);
-        if (!validation.isValidObjectId(authorId) || !author) {
-          res.status(400).send({ status: false, msg: "authorId is invalid" });
-          return;
-        }
+        
     
-        //4.validation for tags
+        //3.validation for tags
         if (tags) {
-          if (!validation.isValidString(tags)) {
-            res.status(400).send({ status: false, msg: "invalid tags" });
-            return;
+          if (validation.isValidString(tags)) {
+            let arrOfTags = tags.split(",").filter((x) => x.trim().length > 0);
+            arrOfTags = [...new Set(arrOfTags)]
+            if (arrOfTags.length == 0) {
+              res.status(400).send({ status: false, msg: "Invalid tags" });
+              return;
+            }
+            requestBody.tags = [...arrOfTags]
           }
-          let arrOfTags = tags.split(",").filter((x) => x.trim().length > 0);
-          arrOfTags = [...new Set(arrOfTags)]
-          if (arrOfTags.length == 0) {
-            res.status(400).send({ status: false, msg: "Invalid tags" });
-            return;
+
+          else if(validation.isValidArray(tags)){
+            tags=tags.map(x=>[x.trim().split(",")]).flat(Infinity)
+            requestBody.tags = [...tags]
           }
-          
-          requestBody.tags = [...arrOfTags];
-          
+          else{
+            res.status(400).send({status:false, msg:"Invalid tags"})
+            return
+          }
         }
     
-        //5.validation for category
+        //4.validation for category
         if (!validation.isValidString(category)) {
           res.status(400).send({ status: false, msg: "category is invalid" });
           return;
         }
     
-        //6.validation for subcategory
+        //5.validation for subcategory
         if (subcategory) {
-          if (!validation.isValidString(subcategory)) {
-            res.status(400).send({ status: false, msg: "invalid subcategory" });
-            return;
+          if (validation.isValidString(subcategory)) {
+            let arrOfsubcategory = subcategory.split(",").filter((x) => x.trim().length > 0);
+            arrOfsubcategory = [...new Set(arrOfsubcategory)]
+            if (arrOfsubcategory.length == 0) {
+              res.status(400).send({ status: false, msg: "Invalid subcategory" });
+              return;
+            }
+            requestBody.subcategory = [...arrOfsubcategory]
           }
-          let arrOfsubcategory = subcategory.split(",").filter((x) => x.trim().length > 0);
-          arrOfsubcategory = [...new Set(arrOfsubcategory)]
-          if (arrOfsubcategory.length == 0) {
-            res.status(400).send({ status: false, msg: "Invalid subcategory" });
-            return;
-          } 
-            requestBody.subcategory = [...arrOfsubcategory];
-          
+          else if(validation.isValidArray(subcategory)){
+            subcategory=subcategory.map(x=>[x.trim().split(",")]).flat(Infinity)
+            requestBody.subcategory = [...subcategory]
+          }
+          else{
+            res.status(400).send({status:false, msg:"Invalid subcategory"})
+            return
+          }
         }
         // Validation Ends
     
@@ -89,20 +95,35 @@ const createBlog = async function (req, res) {
 
 
 
+const getBlogs = async function (req, res) {
+	try {
+		const filterObj = req.modifiedQuery;
+		filterObj.isDeleted = false;
+		filterObj.isPublished = true;
+		const allBlogs = await blogModel.find(filterObj);
+		if (allBlogs.length === 0){
+			return res.status(404).send({ status: false, msg: "Resource Not Found" })
+    };
+		 res.status(200).send({ status: true, data: allBlogs });
+	} catch (error) {
+		return res.status(500).send({ status: false, msg: error.message });
+	}
+};
+
+
+
+
+
 const updateBlog = async function (req, res) {
   try {
     const blogId = req.params.blogId;
     const updateData = req.body;
   
     //destructuring
-    const { title, body, tags, subcategory } = updateData;
+    let { title, body, tags, subcategory } = updateData;
     
     //Validaition starts
     //Validation for blogId
-    if(!validation.isValidObjectId(blogId)){
-        res.status(400).send({status:false, msg:"Invalid BlogId"})
-        return
-    }
     //finding blog
     const blog = await blogModel.find({ _id: blogId });
     if (blog.length == 0 || blog["isDeleted"] == true) {
@@ -139,36 +160,49 @@ const updateBlog = async function (req, res) {
 
     if (tags) {
     //validation for tags
-    if (!validation.isValidString(tags)) {
+      if (validation.isValidString(tags)) {
+        let arr = tags.split(",").filter((x) => x.trim().length > 0);
+        //obj={$addToSet:{}}
+        arr=[...new Set(arr)]
+        obj["$addToSet"]["tags"] = [...arr];
+        //  $each to add each element of array
+        //  $addToSet to stop pushing duplicate elements
+        
+        }
+      else if(validation.isValidArray(tags)){
+        tags = tags.map(x=>x.trim().split(",")).flat(Infinity)
+        obj["$addToSet"]['tags'] = [...tags]
+      }
+      else {
         res.status(400).send({ status: false, msg: "Invalid content in tags" });
         return;
-        }
-    let arr = tags.split(",").filter((x) => x.trim().length > 0);
-    //obj={$addToSet:{}}
-    arr=[...new Set(arr)]
-    obj["$addToSet"]["tags"] = [...arr];
-    //  $each to add each element of array
-    //  $addToSet to stop pushing duplicate elements    
-    }
+      }   
+     }
 
     if (subcategory) {
     //validation for subcategory
-    if (!validation.isValidString(subcategory)) {
-        res
-         .status(400)
-         .send({ status: false, msg: "Invalid content in subcategory" });
-        return;
+      if (validation.isValidString(subcategory)) {
+        let arr = subcategory.split(",").filter((x) => x.trim().length > 0);
+        //obj={$addToSet:{}}
+        arr=[...new Set(arr)]
+        obj["$addToSet"]["subcategory"] = {$each:[...arr]};
         }
-    let arr = subcategory.split(",").filter((x) => x.trim().length > 0);
-    arr=[...new Set(arr)]
-    obj["$addToSet"]["subcategory"] = { $each: [...arr] };
+
+      else if(validation.isValidArray(subcategory)){
+        subcategory = subcategory.map(x=>[x.trim().split(",")]).flat(Infinity)
+        obj["$addToSet"]['subcategory'] = {$each:[...subcategory]
+      }}
+      else {
+        res.status(400).send({ status: false, msg: "Invalid content in tags" });
+        return;
+      }
     }
 
     //Updation
     const updatedBlog = await blogModel.findByIdAndUpdate(blogId, obj, {
       new: true,
     });
-    res.status(200).send({ status: true, data: updatedBlog });
+    res.status(200).send({ status: true, msg:"Successfully updated", data: updatedBlog });
   } catch (err) {
     res.status(500).send({ status: false, msg: err.message });
   }
@@ -178,28 +212,19 @@ const updateBlog = async function (req, res) {
 
 
 
-const deleteBlogByID = async function (req, res) {
-  try {
-    const blogId = req.params.blogId;
-
-    //Validation for blogId
-    if (!ObjectId.isValid(blogId)) {
-      res.status(400).send({ status: false, msg: "blogId in not valid" });
-      return;
-    }
-    // check
-    const blog = await blogModel.find({_id:blogId, isDeleted:false});
-    if ( !blog) {
-        res.status(404).send({ status: false, msg: "Blog does not exist" });
-        return;
-      }
-
-      const newBlog = await blogModel.findByIdAndUpdate(blogId,{isDeleted:true, deletedAt:new Date()}, {new: true});
-      res.status(200).send()
-    
-  } catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
-  }
+const deleteBlogById = async function (req, res) {
+	try {
+		const blogId = req.params.blogId;
+		const deletedBlog = await blogModel.findOneAndUpdate(
+			{ _id: blogId, isDeleted: false },
+			{ isDeleted: true, deletedAt: new Date() }
+		);
+		return deletedBlog
+			? res.status(200).send()
+			: res.status(404).send({ status: false, msg: "Resource Not Found" });
+	} catch (error) {
+		return res.status(500).send({ status: false, msg: error });
+	}
 };
 
 
@@ -212,7 +237,8 @@ const deleteBlogByParams = async function (req, res) {
     const data = req.query;
   
     //destructuring
-    const { category, authorId, tag, subcategory, isPublished } = data;
+    let { category, authorId, tag, subcategory, isPublished } = data;
+    authorId=req.authorId
 
     let obj = {};
     if (category) {
@@ -285,4 +311,7 @@ const deleteBlogByParams = async function (req, res) {
 
 
 
-module.exports = { createBlog, updateBlog, deleteBlogByID, deleteBlogByParams };
+
+
+
+module.exports = { createBlog, getBlogs, updateBlog, deleteBlogById, deleteBlogByParams };

@@ -12,7 +12,7 @@ const isValidRequestBody = function(data){
 }
 
 const isValidString = function(data){
-    if(typeof(data !="string"||data.trim().length==0)){
+    if(typeof(data) !="string"||data.trim().length==0){
         return false
     }
     return true
@@ -34,21 +34,28 @@ const isValidPassword = function(data){
     return passwordRegex.test(data)
 }
 
-const isValid = function (value) {
-    if (typeof value === "undefined" || value === null) return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
-    return true;
-  };
+// const isValid = function (value) {
+//     if (typeof value === "undefined" || value === null) return false;
+//     if (typeof value === "string" && value.trim().length === 0) return false;
+//     return true;
+//   };
+
+const isValidArray = function(data){
+    if(!Array.isArray(data)||data.length==0||data.includes(undefined)||data.filter(x=>x.trim().length>0).length==0){
+        return false
+    }
+    return true
+}
 
 
   module.exports={
-    isValid,
     isValidEmail,
     isValidObjectId,
     isValidPassword,
     isValidRequestBody,
     isValidString,
-    isValidTitle
+    isValidTitle,
+    isValidArray
 }
 
 
