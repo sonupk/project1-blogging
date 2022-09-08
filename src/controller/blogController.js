@@ -49,6 +49,8 @@ const createBlog = async function (req, res) {
 				requestBody.tags = [...uniqueArrOfTags];
 			} else if (validation.isValidArray(tags)) {
 				let arrOfTags = validation.flattenArray(tags);
+				if (arrOfTags.length === 0)
+					return res.status(400).send({ status: false, msg: "Invalid tags" });
 				requestBody.tags = [...arrOfTags];
 			} else {
 				res.status(400).send({ status: false, msg: "Invalid tags" });
@@ -76,6 +78,10 @@ const createBlog = async function (req, res) {
 				requestBody.subcategory = [...uniqueArrOfSubcategory];
 			} else if (validation.isValidArray(subcategory)) {
 				let arrOfSubcategory = validation.flattenArray(subcategory);
+				if (arrOfSubcategory.length === 0)
+					return res
+						.status(400)
+						.send({ status: false, msg: "Invalid subcategory" });
 				requestBody.subcategory = [...arrOfSubcategory];
 			} else {
 				res.status(400).send({ status: false, msg: "Invalid subcategory" });
@@ -103,7 +109,7 @@ const getBlogs = async function (req, res) {
 		if (allBlogs.length === 0) {
 			return res.status(404).send({ status: false, msg: "Resource Not Found" });
 		}
-		res.status(200).send({ status: true, data: allBlogs });
+		res.status(200).send({ status: true, data: allBlogs,msg:`${allBlogs.length} blog(s) found`});
 	} catch (error) {
 		return res.status(500).send({ status: false, msg: error.message });
 	}
@@ -229,7 +235,7 @@ const deleteFromQuery = async function (req, res) {
 		);
 		res.status(200).send({
 			status: true,
-			msg: `Successfully deleted ${update.modifiedCount} blogs`,
+			msg: `Successfully deleted ${update.modifiedCount} blog(s)`,
 		});
 	} catch (error) {
 		res.status(500).send({ status: false, msg: error.message });

@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 let arr = ["Mr", "Mrs", "Miss"];
 const ObjectId = mongoose.Types.ObjectId;
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,19})/;
+const passwordRegex =
+	/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,19})/;
 
 const isValidRequestBody = function (data) {
 	if (Object.keys(data).length == 0) return false;
@@ -43,10 +44,11 @@ const makeArray = function (data) {
 const flattenArray = function (data) {
 	let arrayOfInput = data
 		.map((x) => [x.split(",").map((x) => x.trim())])
-		.flat(Infinity);
+		.flat(Infinity)
+		.filter((x) => x.trim().length > 0);
 	return arrayOfInput;
 };
-
+console.log(flattenArray(["  ,"]));
 const isValidArray = function (data) {
 	if (
 		!Array.isArray(data) ||

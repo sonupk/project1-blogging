@@ -28,7 +28,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 
 		if (tags) {
 			if (validation.isValidString(tags)) {
-				let arrOfTags = validation.makeArray(tags);
+				arrOfTags = validation.makeArray(tags);
 				if (arrOfTags.length == 0) {
 					return res.status(400).send({ status: false, msg: "Invalid tags" });
 				}
@@ -38,7 +38,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 
 		if (subcategory) {
 			if (validation.isValidString(subcategory)) {
-				let arrOfsubcategory = validation.makeArray(subcategory);
+				arrOfsubcategory = validation.makeArray(subcategory);
 				if (arrOfsubcategory.length == 0) {
 					return res
 						.status(400)
