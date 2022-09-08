@@ -105,7 +105,7 @@ const getBlogs = async function (req, res) {
 		const filterObj = req.modifiedQuery;
 		filterObj.isDeleted = false;
 		filterObj.isPublished = true;
-		const allBlogs = await blogModel.find(filterObj);
+		const allBlogs = await blogModel.find(filterObj).populate("authorId");
 		if (allBlogs.length === 0) {
 			return res.status(404).send({ status: false, msg: "Resource Not Found" });
 		}
@@ -187,7 +187,7 @@ const updateBlog = async function (req, res) {
 		//Updation
 		const updatedBlog = await blogModel.findByIdAndUpdate(blogId, obj, {
 			new: true,
-		});
+		}).populate("authorId");
 		res
 			.status(200)
 			.send({ status: true, msg: "Successfully updated", data: updatedBlog });
