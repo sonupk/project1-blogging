@@ -19,7 +19,7 @@ const BlogsModels = new mongoose.Schema(
 
 		isDeleted: { type: Boolean, default: false },
 
-		publishedAt: { type: Date },
+		publishedAt: { type: Date ,default:null},
 
 		isPublished: { type: Boolean, default: false },
 	},

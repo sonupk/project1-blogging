@@ -8,13 +8,16 @@ const BlogValidationFromQuery = async function (req, res, next) {
 		const category = req.query.category;
 		const tags = req.query.tags;
 		const subcategory = req.query.subcategory;
+		
+
 		const dynamicObj = {};
 		if (authorId) {
+			if(!validation.isValidObjectId(authorId)){
+				return res
+					.status(400)
+					.send({ status: false, msg: "authorId is invalid" });
+			}
 			dynamicObj.authorId = authorId;
-		}
-
-		if (!authorId){
-			dynamicObj.authorId = req.authorId
 		}
 
 		if (category) {
@@ -35,18 +38,12 @@ const BlogValidationFromQuery = async function (req, res, next) {
 				.filter((x) => x.length > 0);
 			if (arrOfTags.length == 0) {
 				return res.status(400).send({ status: false, msg: "Invalid tags" });
-			}
-			dynamicObj.tags = { $in: [...arrOfTags] };
-			}
-			else if(validation.isValidArray(tags)){
-				tags=tags.map(x=>[x.split(",")]).flat(Infinity)
-				dynamicObj.tags = {$in:[...tags]}
-			}
-			else {
-				res.status(400).send({status:false, msg:"Invalid tags"})
-				return
+			} 
+			dynamicObj.tags = { $in: arrOfTags };
+			
 			}
 		}
+
 
 		if (subcategory) {
 			if (validation.isValidString(subcategory)) {
@@ -55,26 +52,20 @@ const BlogValidationFromQuery = async function (req, res, next) {
 				.map((x) => x.trim())
 				.filter((x) => x.length > 0);
 			if (arrOfsubcategory.length == 0) {
-				return res.status(400).send({ status: false, msg: "Invalid subcategory" });
+				return res
+					.status(400)
+					.send({ status: false, msg: "Invalid subcategory" });
+			} else {
+				dynamicObj.subcategory = { $in: arrOfsubcategory };
 			}
-			dynamicObj.subcategory = { $in: [...arrOfsubcategory] };
 			}
-			else if(validation.isValidArray(subcategory)){
-				subcategory=subcategory.map(x=>[x.split(",")]).flat(Infinity)
-				dynamicObj.subcategory = {$in:[...subcategory]}
-			}
-			else {
-				res.status(400).send({status:false, msg:"Invalid subcategory"})
-				return
-			}
-		}
-
+		} 
 		req.modifiedQuery = dynamicObj;
+	next();
 
-		next();
-
-	} catch (error) {
-		res.status(500).send({ msg: error });
+}
+	catch (error) {
+		res.status(500).send({ msg: error.message });
 	}
 };
 

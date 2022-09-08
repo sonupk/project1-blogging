@@ -1,15 +1,22 @@
-const mongoose = require("mongoose")
-const ObjectId = mongoose.Types.ObjectId
-const jwt = require("jsonwebtoken")
-let arr = ["Mr", "Mrs", "Miss"]
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+const jwt = require("jsonwebtoken");
+let arr = ["Mr", "Mrs", "Miss"];
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/;
+const passwordRegex =
+	/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,19})/
+	
 
 
-const isValidRequestBody = function(data){
-    if(Object.keys(data).length==0) return false
-    return true
+const isValidRequestBody = function (data) {
+	if (Object.keys(data).length == 0) return false;
+	return true;
+};
+
+const isValidObjectId = function(data){
+	return ObjectId.isValid(data)
 }
+
 
 const isValidString = function(data){
     if(typeof(data) !="string"||data.trim().length==0){
@@ -18,21 +25,17 @@ const isValidString = function(data){
     return true
 }
 
-const isValidObjectId = function(data){
-    return ObjectId.isValid(data)  
-}
+const isValidTitle = function (data) {
+	return arr.includes(data);
+};
 
-const isValidTitle = function(data){
-    return arr.includes(data)  
-}
+const isValidEmail = function (data) {
+	return emailRegex.test(data);
+};
 
-const isValidEmail = function(data){
-    return emailRegex.test(data)
-}
-
-const isValidPassword = function(data){
-    return passwordRegex.test(data)
-}
+const isValidPassword = function (data) {
+	return passwordRegex.test(data);
+};
 
 // const isValid = function (value) {
 //     if (typeof value === "undefined" || value === null) return false;
