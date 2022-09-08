@@ -26,7 +26,7 @@ const userAuthorisation = async function (req, res, next) {
 		let authorId = req["x-api-key"].authorId;
 		let blogId = req.params.blogId;
 		let authorIdFromBody = req.body.authorId;
-		let blog = await blogModel.findById(blogId);
+		
 
 		if (blogId) {
 			//Validation for blogId
@@ -34,7 +34,7 @@ const userAuthorisation = async function (req, res, next) {
 				res.status(400).send({ status: false, msg: "Invalid blogID" });
 				return;
 			}
-
+			let blog = await blogModel.findById(blogId);
 			if (blog.authorId.toString() !== authorId)
 				return res.status(403).send({
 					status: false,

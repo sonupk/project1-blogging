@@ -53,8 +53,8 @@ const createBlog = async function (req, res) {
 				requestBody.tags = [...uniqueArrOfTags];
 			} else if (validation.isValidArray(tags)) {
 				let arrOfTags = validation.flattenArray(tags);
-				if (arrOfTags.length === 0)
-					return res.status(400).send({ status: false, msg: "Invalid tags" });
+				if (arrOfTags.length === 0){
+					return res.status(400).send({ status: false, msg: "Invalid tags" })};
 				requestBody.tags = [...arrOfTags];
 			} else {
 				res.status(400).send({ status: false, msg: "Invalid tags" });
@@ -115,8 +115,9 @@ const getBlogs = async function (req, res) {
 		}
 		res.status(200).send({
 			status: true,
-			data: allBlogs,
 			msg: `${allBlogs.length} blog(s) found`,
+			data: allBlogs
+			
 		});
 	} catch (error) {
 		return res.status(500).send({ status: false, msg: error.message });
@@ -163,13 +164,15 @@ const updateBlog = async function (req, res) {
 			if (validation.isValidString(tags)) {
 				let arrOfTags = validation.makeArray(tags);
 				uniqueArrOfTags = [...new Set(arrOfTags)];
-				obj["$addToSet"]["tags"] = [...uniqueArrOfTags];
+				obj["$addToSet"]["tags"] = {$each:[...uniqueArrOfTags]};
 				//  $each to add each element of array
 				//  $addToSet to stop pushing duplicate elements
-			} else if (validation.isValidArray(tags)) {
-				let arrOfTags = validation.flattenArray(tags);
-				obj["$addToSet"]["tags"] = [...tags];
-			} else {
+			} 
+			else if (validation.isValidArray(tags)) {
+				let arrOfTags = validation.flattenArray(tags)
+				obj["$addToSet"]["tags"] = {$each:[...arrOfTags]};
+			}
+			else {
 				res.status(400).send({ status: false, msg: "Invalid content in tags" });
 				return;
 			}

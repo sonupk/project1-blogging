@@ -115,7 +115,6 @@ const authorLogin = async function (req, res) {
 		//validation on password
 		if (!password) {
 			res.status(400).send({ status: false, msg: "Password must be present" });
-			console.log(password);
 			return;
 		}
 
@@ -125,7 +124,7 @@ const authorLogin = async function (req, res) {
 		obj.password = password;
 		const author = await authorModel.findOne(obj);
 		if (!author) {
-			res.status(400).send({ status: false, msg: "Invalid Credentials" });
+			res.status(400).send({ status: false, msg: "Unauthenticated" });
 			return;
 		}
 		const token = jwt.sign({ authorId: author._id.toString() }, secretkey);
