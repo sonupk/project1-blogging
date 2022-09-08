@@ -109,7 +109,11 @@ const getBlogs = async function (req, res) {
 		if (allBlogs.length === 0) {
 			return res.status(404).send({ status: false, msg: "Resource Not Found" });
 		}
-		res.status(200).send({ status: true, data: allBlogs,msg:`${allBlogs.length} blog(s) found`});
+		res.status(200).send({
+			status: true,
+			data: allBlogs,
+			msg: `${allBlogs.length} blog(s) found`,
+		});
 	} catch (error) {
 		return res.status(500).send({ status: false, msg: error.message });
 	}
@@ -185,9 +189,11 @@ const updateBlog = async function (req, res) {
 		}
 
 		//Updation
-		const updatedBlog = await blogModel.findByIdAndUpdate(blogId, obj, {
-			new: true,
-		}).populate("authorId");
+		const updatedBlog = await blogModel
+			.findByIdAndUpdate(blogId, obj, {
+				new: true,
+			})
+			.populate("authorId");
 		res
 			.status(200)
 			.send({ status: true, msg: "Successfully updated", data: updatedBlog });
@@ -199,6 +205,12 @@ const updateBlog = async function (req, res) {
 const deleteBlogById = async function (req, res) {
 	try {
 		const blogId = req.params.blogId;
+		let blog = await blogModel.findById(blogId);
+
+		if (!blog || blog["isDeleted"] == true) {
+			res.status(404).send({ status: false, msg: "No blog found" });
+			return;
+		}
 
 		const deletedBlog = await blogModel.findOneAndUpdate(
 			{ _id: blogId, isDeleted: false },
