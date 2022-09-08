@@ -27,6 +27,10 @@ const userAuthorisation = async function (req, res, next) {
 		let blogId = req.params.blogId;
 		let authorIdFromBody = req.body.authorId;
 		
+<<<<<<< HEAD
+=======
+		let blog = await blogModel.findById(blogId);
+>>>>>>> 4d628c240719b5ed12a6792bbc2a36c3246c84ef
 
 		if (blogId) {
 			//Validation for blogId

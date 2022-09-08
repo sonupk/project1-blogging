@@ -1,3 +1,4 @@
+const { set } = require("mongoose");
 const blogModel = require("../models/blogModel");
 const validation = require("../validators/validator");
 
@@ -5,6 +6,7 @@ const validation = require("../validators/validator");
 const createBlog = async function (req, res) {
 	try {
 		const requestBody = req.body;
+
 		// Destructuring
 		let { title, body, authorId, category, tags, subcategory, isPublished } =
 			requestBody;
@@ -44,7 +46,7 @@ const createBlog = async function (req, res) {
 		//3.validation for tags
 		if (tags) {
 			if (validation.isValidString(tags)) {
-				let arrOfTags = validation.makeArray(tags);
+				arrOfTags = validation.makeArray(tags);
 				let uniqueArrOfTags = [...new Set(arrOfTags)];
 				if (uniqueArrOfTags.length == 0) {
 					res.status(400).send({ status: false, msg: "Invalid tags" });
@@ -52,10 +54,18 @@ const createBlog = async function (req, res) {
 				}
 				requestBody.tags = [...uniqueArrOfTags];
 			} else if (validation.isValidArray(tags)) {
+<<<<<<< HEAD
 				let arrOfTags = validation.flattenArray(tags);
 				if (arrOfTags.length === 0){
 					return res.status(400).send({ status: false, msg: "Invalid tags" })};
 				requestBody.tags = [...arrOfTags];
+=======
+				arrOfTags = validation.flattenArray(tags);
+				if (arrOfTags.length === 0)
+					return res.status(400).send({ status: false, msg: "Invalid tags" });
+				let uniqueArrOfTags = [...new Set(arrOfTags)];
+				requestBody.tags = [...uniqueArrOfTags];
+>>>>>>> 4d628c240719b5ed12a6792bbc2a36c3246c84ef
 			} else {
 				res.status(400).send({ status: false, msg: "Invalid tags" });
 				return;
@@ -86,7 +96,8 @@ const createBlog = async function (req, res) {
 					return res
 						.status(400)
 						.send({ status: false, msg: "Invalid subcategory" });
-				requestBody.subcategory = [...arrOfSubcategory];
+				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
+				requestBody.subcategory = [...uniqueArrOfSubcategory];
 			} else {
 				res.status(400).send({ status: false, msg: "Invalid subcategory" });
 				return;
@@ -129,7 +140,7 @@ const updateBlog = async function (req, res) {
 		const blogId = req.params.blogId;
 		const updateData = req.body;
 
-		//destructuring
+		//Destructuring
 		let { title, body, tags, subcategory } = updateData;
 
 		//adding data in obj which are needed to be update
@@ -167,12 +178,11 @@ const updateBlog = async function (req, res) {
 				obj["$addToSet"]["tags"] = {$each:[...uniqueArrOfTags]};
 				//  $each to add each element of array
 				//  $addToSet to stop pushing duplicate elements
-			} 
-			else if (validation.isValidArray(tags)) {
-				let arrOfTags = validation.flattenArray(tags)
-				obj["$addToSet"]["tags"] = {$each:[...arrOfTags]};
-			}
-			else {
+			} else if (validation.isValidArray(tags)) {
+				let arrOfTags = validation.flattenArray(tags);
+				let uniqueArrOfTags = [...new Set(arrOfTags)];
+				obj["$addToSet"]["tags"] = [...uniqueArrOfTags];
+			} else {
 				res.status(400).send({ status: false, msg: "Invalid content in tags" });
 				return;
 			}
@@ -187,8 +197,11 @@ const updateBlog = async function (req, res) {
 					$each: [...uniqueArrOfSubcategory],
 				};
 			} else if (validation.isValidArray(subcategory)) {
-				let arrOfSubcategory = validation.flattenArray(subcategory);
-				obj["$addToSet"]["subcategory"] = { $each: [...arrOfSubcategory] };
+				arrOfSubcategory = validation.flattenArray(subcategory);
+				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
+				obj["$addToSet"]["subcategory"] = {
+					$each: [...uniqueArrOfSubcategory],
+				};
 			} else {
 				res.status(400).send({ status: false, msg: "Invalid content in tags" });
 				return;
@@ -205,7 +218,7 @@ const updateBlog = async function (req, res) {
 			.status(200)
 			.send({ status: true, msg: "Successfully updated", data: updatedBlog });
 	} catch (err) {
-		res.status(500).send({ status: false, msg: err.message });
+		res.status(500).send({ status: false, msg: err });
 	}
 };
 
@@ -243,8 +256,8 @@ const deleteFromQuery = async function (req, res) {
 		}
 		if (!data.authorId) data.authorId = req["x-api-key"].authorId;
 
-		let findModel = await blogModel.find(data);
-		if (findModel.length == 0) {
+		let findBlogs = await blogModel.find(data);
+		if (findBlogs.length == 0) {
 			return res.status(404).send({ status: false, msg: "Blog not found" });
 		}
 		let update = await blogModel.updateMany(

@@ -1,6 +1,5 @@
 const authorModel = require("../models/authorModel");
 const jwt = require("jsonwebtoken");
-const secretkey = "plutoniumFunctionup$%(())()*)+/";
 const validation = require("../validators/validator");
 
 const createAuthor = async function (req, res) {
@@ -101,6 +100,7 @@ const authorLogin = async function (req, res) {
 		const requestBody = req.body;
 		const email = requestBody.email;
 		const password = requestBody.password;
+		const secretkey = "plutoniumFunctionup$%(())()*)+/";
 
 		//Validation on email
 		if (!email) {
