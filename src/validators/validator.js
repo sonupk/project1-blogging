@@ -3,7 +3,8 @@ const ObjectId = mongoose.Types.ObjectId;
 const jwt = require("jsonwebtoken");
 let arr = ["Mr", "Mrs", "Miss"];
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/;
+const passwordRegex =
+	"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})";
 
 const isValidRequestBody = function (data) {
 	if (Object.keys(data).length == 0) return false;

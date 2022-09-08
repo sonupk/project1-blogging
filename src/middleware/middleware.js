@@ -38,7 +38,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 			if (arrOfTags.length == 0) {
 				return res.status(400).send({ status: false, msg: "Invalid tags" });
 			} else {
-				dynamicObj.tags = { $all: arrOfTags };
+				dynamicObj.tags = { $in: arrOfTags };
 			}
 		}
 		if (subcategory) {
@@ -56,7 +56,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 					.status(400)
 					.send({ status: false, msg: "Invalid subcategory" });
 			} else {
-				dynamicObj.subcategory = { $all: arrOfsubcategory };
+				dynamicObj.subcategory = { $in: arrOfsubcategory };
 			}
 		}
 		req.modifiedQuery = dynamicObj;
