@@ -179,7 +179,7 @@ const updateBlog = async function (req, res) {
 				//  $each to add each element of array
 				//  $addToSet to stop pushing duplicate elements
 			} else if (validation.isValidArray(tags)) {
-				let arrOfTags = validation.flattenArray(tags);
+				arrOfTags = validation.flattenArray(tags);
 				let uniqueArrOfTags = [...new Set(arrOfTags)];
 				obj["$addToSet"]["tags"] = [...uniqueArrOfTags];
 			} else {
@@ -218,7 +218,7 @@ const updateBlog = async function (req, res) {
 			.status(200)
 			.send({ status: true, msg: "Successfully updated", data: updatedBlog });
 	} catch (err) {
-		res.status(500).send({ status: false, msg: err });
+		res.status(500).send({ status: false, msg: err.message });
 	}
 };
 
@@ -239,7 +239,7 @@ const deleteBlogById = async function (req, res) {
 
 		res.status(200).send();
 	} catch (error) {
-		return res.status(500).send({ status: false, msg: error });
+		return res.status(500).send({ status: false, msg: error.message });
 	}
 };
 
