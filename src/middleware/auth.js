@@ -26,11 +26,13 @@ const userAuthorisation = async function (req, res, next) {
 		let userId = req["x-api-key"].authorId;
 		let blogId = req.params.blogId;
 		let blog = await BlogModel.findById(blogId);
-		if (blog.authorId.toString() !== userId)
-			return res.status(403).send({
-				status: false,
-				msg: "Unauthorised",
-			});
+		if (blogId) {
+			if (blog.authorId.toString() !== userId)
+				return res.status(403).send({
+					status: false,
+					msg: "Unauthorised",
+				});
+		}
 		next();
 	} catch (error) {
 		res.status(500).send({ status: false, msg: error.message });
