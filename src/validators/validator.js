@@ -44,7 +44,7 @@ const makeArray = function (data) {
 	let arrayOfInput = data
 		.split(",")
 		.map((x) => x.trim())
-		.filter((x) => x.trim().length > 0);
+		.filter((x) => x.length > 0);
 	return arrayOfInput;
 };
 
@@ -52,7 +52,7 @@ const flattenArray = function (data) {
 	let arrayOfInput = data
 		.map((x) => [x.split(",").map((x) => x.trim())])
 		.flat(Infinity)
-		.filter((x) => x.trim().length > 0);
+		.filter((x) => x.length > 0);
 	return arrayOfInput;
 };
 
