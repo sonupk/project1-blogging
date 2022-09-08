@@ -19,13 +19,11 @@ const userAuthentication = async function (req, res, next) {
 	}
 };
 
-// / ==> Authorization middleware function for PUT api and DELETE api by blogId in the path params
 const userAuthorisation = async function (req, res, next) {
 	try {
 		let authorId = req["x-api-key"].authorId;
 		let blogId = req.params.blogId;
 		let authorIdFromBody =req.body.authorId
-
 		
 		if (blogId) {
 			//Validation for blogId
