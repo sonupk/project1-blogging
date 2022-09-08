@@ -11,8 +11,27 @@ const createBlog = async function (req, res) {
         // Destructuring
         let { title, body, authorId, tags, category, subcategory, isPublished } = requestBody;
   
-        //check Authorization
         
+		// Mandatory field
+		if(!title){
+			res.status(400).send({ status: false, msg: "title is not present" });
+          	return;
+		}
+
+		if(!body){
+			res.status(400).send({ status: false, msg: "body is not present" });
+          	return;
+		}
+
+		if(!authorId){
+			res.status(400).send({ status: false, msg: "authorId is not present" });
+          	return;
+		}
+
+		if(!category){
+			res.status(400).send({ status: false, msg: "category is not present" });
+          	return;
+		}
         //Validation Starts
         //1.validation for title
         if (!validation.isValidString(title)) {
@@ -27,7 +46,6 @@ const createBlog = async function (req, res) {
         }
     
         
-    
         //3.validation for tags
         if (tags) {
           if (validation.isValidString(tags)) {
