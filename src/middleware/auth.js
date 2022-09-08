@@ -26,6 +26,7 @@ const userAuthorisation = async function (req, res, next) {
 		let authorId = req["x-api-key"].authorId;
 		let blogId = req.params.blogId;
 		let authorIdFromBody = req.body.authorId;
+		
 		let blog = await blogModel.findById(blogId);
 
 		if (blogId) {
