@@ -10,7 +10,13 @@ router.use("/blogs", authUser.userAuthentication);
 
 router.post("/authors", authorController.createAuthor);
 router.post("/login", authorController.authorLogin);
-router.post("/blogs", authUser.userAuthorisation, blogController.createBlog);
+router.post(
+	"/blogs",
+	authUser.userAuthorisation,
+	BlogValidation.createBlogValidation,
+	BlogValidation.BlogValidation,
+	blogController.createBlog
+);
 router.get(
 	"/blogs",
 	BlogValidation.BlogValidationFromQuery,
@@ -19,6 +25,7 @@ router.get(
 router.put(
 	"/blogs/:blogId",
 	authUser.userAuthorisation,
+	BlogValidation.BlogValidation,
 	blogController.updateBlog
 );
 router.delete(
@@ -31,6 +38,6 @@ router.delete(
 	authUser.userAuthorisation,
 	BlogValidation.BlogValidationFromQuery,
 	blogController.deleteFromQuery
-); //by query params
+);
 
 module.exports = router;

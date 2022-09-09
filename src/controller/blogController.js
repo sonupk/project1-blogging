@@ -1,106 +1,8 @@
-const { set } = require("mongoose");
 const blogModel = require("../models/blogModel");
-const validation = require("../validators/validator");
 
-// FIRST HANDLER
 const createBlog = async function (req, res) {
 	try {
-		const requestBody = req.body;
-
-		// Destructuring
-		let { title, body, authorId, category, tags, subcategory, isPublished } =
-			requestBody;
-
-		if (!title) {
-			res.status(400).send({ status: false, msg: "title must be present" });
-			return
-		}
-		if (!body) {
-			res.status(400).send({ status: false, msg: "body must be present" });
-			return
-		}
-		if (!authorId) {
-			res.status(400).send({ status: false, msg: "authorId must be present" });
-			return
-		}
-		if (!category) {
-			res.status(400).send({ status: false, msg: "category must be present" });
-			return
-		}
-
-		//Validation Starts
-		//1.validation for title
-		if (!validation.isValidString(title)) {
-			res
-				.status(400)
-				.send({ status: false, msg: "title must contain letters" });
-			return;
-		}
-
-		//2.validation for body
-		if (!validation.isValidString(body)) {
-			res.status(400).send({ status: false, msg: "body must contain letters" });
-			return;
-		}
-
-		//3.validation for tags
-		if (tags) {
-			if (validation.isValidString(tags)) {
-				arrOfTags = validation.makeArray(tags);
-				let uniqueArrOfTags = [...new Set(arrOfTags)];
-				if (uniqueArrOfTags.length == 0) {
-					res.status(400).send({ status: false, msg: "Invalid tags" });
-					return;
-				}
-				requestBody.tags = [...uniqueArrOfTags];
-			} else if (validation.isValidArray(tags)) {
-				arrOfTags = validation.flattenArray(tags);
-				if (arrOfTags.length === 0)
-					return res.status(400).send({ status: false, msg: "Invalid tags" });
-				let uniqueArrOfTags = [...new Set(arrOfTags)];
-				requestBody.tags = [...uniqueArrOfTags];
-			} else {
-				res.status(400).send({ status: false, msg: "Invalid tags" });
-				return;
-			}
-		}
-
-		//4.validation for category
-		if (!validation.isValidString(category)) {
-			res
-				.status(400)
-				.send({ status: false, msg: "category must contain letters" });
-			return;
-		}
-
-		//5.validation for subcategory
-		if (subcategory) {
-			if (validation.isValidString(subcategory)) {
-				let arrOfSubcategory = validation.makeArray(subcategory);
-				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
-				if (uniqueArrOfSubcategory.length == 0) {
-					res.status(400).send({ status: false, msg: "Invalid subcategory" });
-					return;
-				}
-				requestBody.subcategory = [...uniqueArrOfSubcategory];
-			} else if (validation.isValidArray(subcategory)) {
-				let arrOfSubcategory = validation.flattenArray(subcategory);
-				if (arrOfSubcategory.length === 0)
-					return res
-						.status(400)
-						.send({ status: false, msg: "Invalid subcategory" });
-				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
-				requestBody.subcategory = [...uniqueArrOfSubcategory];
-			} else {
-				res.status(400).send({ status: false, msg: "Invalid subcategory" });
-				return;
-			}
-		}
-		// Validation Ends
-
-		if (isPublished === true) {
-			requestBody.publishedAt = new Date();
-		}
+		const requestBody = req.modifiedBody;
 		const newBlog = await blogModel.create(requestBody);
 		res.status(201).send({ status: true, data: newBlog });
 	} catch (err) {
@@ -130,75 +32,18 @@ const getBlogs = async function (req, res) {
 const updateBlog = async function (req, res) {
 	try {
 		const blogId = req.params.blogId;
-		const updateData = req.body;
+		const updateData = req.modifiedBody;
 
-		//Destructuring
-		let { title, body, tags, subcategory } = updateData;
-
-		//adding data in obj which are needed to be update
 		let obj = {};
 		obj.isPublished = true;
 		obj.publishedAt = new Date();
 		obj["$addToSet"] = {};
 
-		// Validaition starts
-		//1. Validation for title
-		if (title) {
-			if (!validation.isValidString(title)) {
-				res
-					.status(400)
-					.send({ status: false, msg: "Invalid content in title" });
-				return;
-			}
-			obj.title = title;
-		}
-
-		//2. Validation for body
-		if (body) {
-			if (!validation.isValidString(body)) {
-				res.status(400).send({ status: false, msg: "Invalid content in body" });
-				return;
-			}
-			obj.body = body;
-		}
-
-		//3. Validation for tags
-		if (tags) {
-			if (validation.isValidString(tags)) {
-				let arrOfTags = validation.makeArray(tags);
-				uniqueArrOfTags = [...new Set(arrOfTags)];
-				obj["$addToSet"]["tags"] = [...uniqueArrOfTags];
-				//  $each to add each element of array
-				//  $addToSet to stop pushing duplicate elements
-			} else if (validation.isValidArray(tags)) {
-				let arrOfTags = validation.flattenArray(tags);
-				let uniqueArrOfTags = [...new Set(arrOfTags)];
-				obj["$addToSet"]["tags"] = [...uniqueArrOfTags];
-			} else {
-				res.status(400).send({ status: false, msg: "Invalid content in tags" });
-				return;
-			}
-		}
-
-		//4. Validation for subcategory
-		if (subcategory) {
-			if (validation.isValidString(subcategory)) {
-				let arrOfSubcategory = validation.makeArray(subcategory);
-				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
-				obj["$addToSet"]["subcategory"] = {
-					$each: [...uniqueArrOfSubcategory],
-				};
-			} else if (validation.isValidArray(subcategory)) {
-				arrOfSubcategory = validation.flattenArray(subcategory);
-				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
-				obj["$addToSet"]["subcategory"] = {
-					$each: [...uniqueArrOfSubcategory],
-				};
-			} else {
-				res.status(400).send({ status: false, msg: "Invalid content in tags" });
-				return;
-			}
-		}
+		if (updateData.title) obj.title = updateData.title;
+		if (updateData.body) obj.body = updateData.body;
+		if (updateData.tags) obj["$addToSet"]["tags"] = [...updateData.tags];
+		if (updateData.subcategory)
+			obj["$addToSet"]["subcategory"] = { $each: [...updateData.subcategory] };
 
 		//Updation
 		const updatedBlog = await blogModel
@@ -210,7 +55,7 @@ const updateBlog = async function (req, res) {
 			.status(200)
 			.send({ status: true, msg: "Successfully updated", data: updatedBlog });
 	} catch (err) {
-		res.status(500).send({ status: false, msg: err });
+		res.status(500).send({ status: false, msg: err.message });
 	}
 };
 
