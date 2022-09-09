@@ -119,12 +119,12 @@ const BlogValidationFromQuery = async function (req, res, next) {
 					.status(400)
 					.send({ status: false, msg: "category is invalid" });
 			}
-			dynamicObj.category = category;
+			dynamicObj.category = category.toLowerCase();
 		}
 
 		if (tags) {
 			if (validation.isValidString(tags)) {
-				arrOfTags = validation.makeArray(tags);
+				arrOfTags = validation.makeArray(tags.toLowerCase());
 				if (arrOfTags.length == 0) {
 					return res.status(400).send({ status: false, msg: "Invalid tags" });
 				}
@@ -134,7 +134,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 
 		if (subcategory) {
 			if (validation.isValidString(subcategory)) {
-				arrOfsubcategory = validation.makeArray(subcategory);
+				arrOfsubcategory = validation.makeArray(subcategory.toUpperCase());
 				if (arrOfsubcategory.length == 0) {
 					return res
 						.status(400)

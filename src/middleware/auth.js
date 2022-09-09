@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const blogModel=require("../models/blogModel")
+const blogModel = require("../models/blogModel");
 const Validation = require("../validators/validator");
 
 const userAuthentication = async function (req, res, next) {
@@ -11,7 +11,7 @@ const userAuthentication = async function (req, res, next) {
 				.status(401)
 				.send({ status: false, msg: "Please provide a token" });
 		}
-		let decodedToken = await jwt.verify(token, secretkey, (err, result) => {
+		let decodedToken = jwt.verify(token, secretkey, (err, result) => {
 			if (err) return res.status(401).send(err.message);
 			req["x-api-key"] = result;
 			next();
@@ -26,7 +26,6 @@ const userAuthorisation = async function (req, res, next) {
 		let authorId = req["x-api-key"].authorId;
 		let blogId = req.params.blogId;
 		let authorIdFromBody = req.body.authorId;
-		
 
 		if (blogId) {
 			//Validation for blogId
@@ -35,11 +34,15 @@ const userAuthorisation = async function (req, res, next) {
 				return;
 			}
 			let blog = await blogModel.findById(blogId);
-			if (blog.authorId.toString() !== authorId)
-				return res.status(403).send({
-					status: false,
-					msg: "Unauthorised",
-				});
+			if (blog) {
+				if (blog.authorId.toString() !== authorId)
+					return res.status(403).send({
+						status: false,
+						msg: "Unauthorised",
+					});
+			}
+			if (!blog)
+				return res.status(404).send({ status: false, msg: "Blog Not Found" });
 		}
 		if (authorIdFromBody) {
 			if (!Validation.isValidObjectId(authorIdFromBody)) {

@@ -36,6 +36,10 @@ const createAuthor = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "email must be present" });
+		if (!validation.isValidString(email))
+			return res
+				.status(400)
+				.send({ status: false, msg: "email must contain letters only" });
 		if (!validation.isValidEmail(email))
 			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 		const repeatEmail = await authorModel.find({ email: email });
@@ -49,6 +53,10 @@ const createAuthor = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "password must be present" });
+		if (!validation.isValidString(password))
+			return res
+				.status(400)
+				.send({ status: false, msg: "password must contain letters only" });
 		if (password.length < 8 || password.length > 19)
 			return res.status(400).send({
 				status: false,
@@ -60,7 +68,7 @@ const createAuthor = async function (req, res) {
 				msg: "Password must contain uppercases,lowercase,special characters and numerics.",
 			});
 
-		const newAuthor = await authorModel.create(requestBody);
+		const newAuthor = await authorModel.create(req.body);
 		res.status(201).send({
 			status: true,
 			mag: "Data created successfully",
@@ -81,6 +89,10 @@ const authorLogin = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "email must be present" });
+		if (!validation.isValidString(email))
+			return res
+				.status(400)
+				.send({ status: false, msg: "email must contain letters only" });
 		if (!validation.isValidEmail(email))
 			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 
@@ -89,12 +101,16 @@ const authorLogin = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "Password must be present" });
+		if (!validation.isValidString(password))
+			return res
+				.status(400)
+				.send({ status: false, msg: "password must contain letters only" });
 
 		// Checking for authentication
 		obj = {};
 		obj.email = email;
 		obj.password = password;
-		
+
 		const author = await authorModel.findOne(obj);
 		if (!author)
 			return res
