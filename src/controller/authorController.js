@@ -85,17 +85,10 @@ const authorLogin = async function (req, res) {
 			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 
 		//validation on password
-<<<<<<< HEAD
 		if (!password)
 			return res
 				.status(400)
 				.send({ status: false, msg: "Password must be present" });
-=======
-		if (!password) {
-			res.status(400).send({ status: false, msg: "Password must be present" });
-			return;
-		}
->>>>>>> dbe6a00a24eb72f475d7f3983f4b332d37912346
 
 		// Checking for authentication
 		obj = {};
@@ -103,18 +96,11 @@ const authorLogin = async function (req, res) {
 		obj.password = password;
 		
 		const author = await authorModel.findOne(obj);
-<<<<<<< HEAD
 		if (!author)
 			return res
 				.status(400)
 				.send({ status: false, msg: "Invalid Credentials" });
 
-=======
-		if (!author) {
-			res.status(400).send({ status: false, msg: "Unauthenticated" });
-			return;
-		}
->>>>>>> dbe6a00a24eb72f475d7f3983f4b332d37912346
 		const token = jwt.sign({ authorId: author._id.toString() }, secretkey);
 		res.status(200).send({ status: true, data: token });
 	} catch (err) {
