@@ -2,13 +2,13 @@ const authorModel = require("../models/authorModel");
 const jwt = require("jsonwebtoken");
 const validation = require("../validators/validator");
 
-//** Function for creating author */
+// Function for creating author
 const createAuthor = async function (req, res) {
 	try {
-		//** Destructuring from req.body */
+		// Destructuring from req.body
 		const { fname, lname, title, email, password } = req.body;
 
-		//** Validating if the first name is present and type is string or not */
+		// Validating if the first name is present and type is string or not
 		if (!fname)
 			return res.status(400).send({ status: false, msg: "fname required" });
 		if (!validation.isValidString(fname))
@@ -16,7 +16,7 @@ const createAuthor = async function (req, res) {
 				.status(400)
 				.send({ status: false, msg: "fname must contain letters" });
 
-		//** Validating if the last name is present and type is string or not */
+		// Validating if the last name is present and type is string or not
 		if (!lname)
 			return res.status(400).send({ status: false, msg: "lname required" });
 		if (!validation.isValidString(lname))
@@ -24,7 +24,7 @@ const createAuthor = async function (req, res) {
 				.status(400)
 				.send({ status: false, msg: "lname must contain letters only" });
 
-		//** Validating if the title is present and type is string or not. Also if the title is among the enumerated values or not */
+		// Validating if the title is present and type is string or not. Also if the title is among the enumerated values or not
 		if (!title)
 			return res.status(400).send({ status: false, msg: "title required" });
 		if (!validation.isValidTitle(title))
@@ -33,7 +33,7 @@ const createAuthor = async function (req, res) {
 				msg: "Title must contain only one of these-'Mr','Mrs','Miss'",
 			});
 
-		//** Validating if the email is present or not and is a valid email or not */
+		// Validating if the email is present or not and is a valid email or not
 		if (!email)
 			return res
 				.status(400)
@@ -50,7 +50,7 @@ const createAuthor = async function (req, res) {
 				.status(400)
 				.send({ status: false, msg: "email ID already exist" });
 
-		//** Validating if the password is present or not and is a strong password */
+		// Validating if the password is present or not and is a strong password
 		if (!password)
 			return res
 				.status(400)
@@ -70,7 +70,7 @@ const createAuthor = async function (req, res) {
 				msg: "Password must contain uppercases,lowercase,special characters and numerics.",
 			});
 
-		//** After validating we are creating a new author */
+		// After validating we are creating a new author
 		const newAuthor = await authorModel.create(req.body);
 		res.status(201).send({
 			status: true,
@@ -82,13 +82,13 @@ const createAuthor = async function (req, res) {
 	}
 };
 
-//** Function for author login and token generation */
+// Function for author login and token generation
 const authorLogin = async function (req, res) {
 	try {
 		const { email, password } = req.body;
 		const secretkey = "plutoniumFunctionup$%(())()*)+/";
 
-		//** Validating if the email is present or not and is a valid email or not */
+		// Validating if the email is present or not and is a valid email or not
 		if (!email)
 			return res
 				.status(400)
@@ -100,7 +100,7 @@ const authorLogin = async function (req, res) {
 		if (!validation.isValidEmail(email))
 			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 
-		//** Validating if the password is present or not */
+		// Validating if the password is present or not
 		if (!password)
 			return res
 				.status(400)
@@ -110,17 +110,17 @@ const authorLogin = async function (req, res) {
 				.status(400)
 				.send({ status: false, msg: "password must contain letters only" });
 
-		//** Creating a dynamic object containing keys email and password with values from the body */
+		// Creating a dynamic object containing keys email and password with values from the body
 		obj = { email: email, password: password };
 
-		//** Checking if the user is present or not or else will throw "Invalid credentials" */
+		// Checking if the user is present or not or else will throw "Invalid credentials"
 		const author = await authorModel.findOne(obj);
 		if (!author)
 			return res
 				.status(400)
 				.send({ status: false, msg: "Invalid Credentials" });
 
-		//** Generating token with authorId in the payload and sending in response body */
+		// Generating token with authorId in the payload and sending in response body
 		const token = jwt.sign({ authorId: author._id.toString() }, secretkey);
 		res.status(200).send({ status: true, data: token });
 	} catch (err) {

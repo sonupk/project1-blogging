@@ -1,9 +1,9 @@
 const blogModel = require("../models/blogModel");
 
-//** Function for creating a blog */
+// Function for creating a blog
 const createBlog = async function (req, res) {
 	try {
-		//** Incoming modifiedBody object from middleware in req.modifiedBody which we are storing in requestBody */
+		// Incoming modifiedBody object from middleware in req.modifiedBody which we are storing in requestBody
 		const requestBody = req.modifiedBody;
 		const newBlog = await blogModel.create(requestBody);
 		res.status(201).send({ status: true, data: newBlog });
@@ -12,14 +12,14 @@ const createBlog = async function (req, res) {
 	}
 };
 
-//** Function for getting blogs by query params */
+// Function for getting blogs by query params
 const getBlogs = async function (req, res) {
 	try {
-		//** Incoming modifiedQuery object from middleware in req.modifiedQuery is stored in a new object filterObj. We are also setting isDeleted false and isPublished true for getting those blogs */
+		// Incoming modifiedQuery object from middleware in req.modifiedQuery is stored in a new object filterObj. We are also setting isDeleted false and isPublished true for getting those blogs
 		const filterObj = req.modifiedQuery;
 		filterObj.isDeleted = false;
 		filterObj.isPublished = true;
-		//** Finding blogs and populating it */
+		// Finding blogs and populating it
 		const allBlogs = await blogModel.find(filterObj).populate("authorId");
 		if (allBlogs.length === 0) {
 			return res.status(404).send({ status: false, msg: "Resource Not Found" });
@@ -34,19 +34,19 @@ const getBlogs = async function (req, res) {
 	}
 };
 
-//** Function for updating blogs */
+// Function for updating blogs
 const updateBlog = async function (req, res) {
 	try {
-		//** Getting blogId from path params */
+		// Getting blogId from path params
 		const blogId = req.params.blogId;
-		//** Incoming modifiedBody object from middleware in req.modifiedBody which we are storing in updateData */
+		// Incoming modifiedBody object from middleware in req.modifiedBody which we are storing in updateData
 		const updateData = req.modifiedBody;
-		//**Creating a dynamic object for storing key and value pairs incoming from body */
+		//Creating a dynamic object for storing key and value pairs incoming from body
 		let obj = {
 			isPublished: true,
 			publishedAt: new Date(),
 		};
-		//** "$addToSet" adds only those elements that are not already present */
+		// "$addToSet" adds only those elements that are not already present
 		obj["$addToSet"] = {};
 
 		if (updateData.title) obj.title = updateData.title;
@@ -55,7 +55,7 @@ const updateBlog = async function (req, res) {
 		if (updateData.subcategory)
 			obj["$addToSet"]["subcategory"] = { $each: [...updateData.subcategory] };
 
-		//** Providing the obj as the updation we want in findByIdAndUpdate */
+		// Providing the obj as the updation we want in findByIdAndUpdate
 		const updatedBlog = await blogModel
 			.findByIdAndUpdate(blogId, obj, {
 				new: true,
@@ -74,7 +74,7 @@ const deleteBlogById = async function (req, res) {
 		const blogId = req.params.blogId;
 		let blog = await blogModel.findById(blogId);
 
-		//** Finding the blogs by Id and not deleted */
+		// Finding the blogs by Id and not deleted
 		if (!blog || blog["isDeleted"] == true) {
 			res.status(404).send({ status: false, msg: "No blog found" });
 			return;
@@ -85,37 +85,37 @@ const deleteBlogById = async function (req, res) {
 			{ isDeleted: true, deletedAt: new Date() }
 		);
 
-		//** Sending empty response body with successful status code */
+		// Sending empty response body with successful status code
 		res.status(200).send();
 	} catch (error) {
 		return res.status(500).send({ status: false, msg: error });
 	}
 };
 
-//** Function for deleting blogs by query params */
+// Function for deleting blogs by query params
 const deleteFromQuery = async function (req, res) {
 	try {
-		//** Incoming modifiedQuery object from middleware in req.modifiedQuery is stored in a new object data. We are also setting isDeleted false and isPublished false for getting those blogs */
+		// Incoming modifiedQuery object from middleware in req.modifiedQuery is stored in a new object data. We are also setting isDeleted false and isPublished false for getting those blogs
 		let data = req.modifiedQuery;
 		data.isDeleted = false;
 		data.isPublished = false;
 
-		//** If authorId is present in query params we are checking if the authorId is matching with the one present in the token */
+		// If authorId is present in query params we are checking if the authorId is matching with the one present in the token
 		if (data.authorId) {
 			if (data.authorId !== req["x-api-key"].authorId)
 				return res.send({ status: false, msg: "User not authorised" });
 		}
-		//** If authorId is not present in query params we are setting a new key in data object called authorId and setting the authorId from token, so the user can only delete his own blogs */
+		// If authorId is not present in query params we are setting a new key in data object called authorId and setting the authorId from token, so the user can only delete his own blogs
 		if (!data.authorId) data.authorId = req["x-api-key"].authorId;
 
-		//** Updating isDeleted to true and adding the date and time of deletion by the query params */
+		// Updating isDeleted to true and adding the date and time of deletion by the query params
 		let update = await blogModel.updateMany(
 			data,
 			{ $set: { isDeleted: true, deletedAt: new Date() } },
 			{ new: true }
 		);
 
-		//** If no blogs found then 404 */
+		// If no blogs found then 404
 		if (update.modifiedCount == 0) {
 			return res.status(404).send({ status: false, msg: "Blog not found" });
 		}
