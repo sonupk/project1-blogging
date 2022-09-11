@@ -6,7 +6,17 @@ const validation = require("../validators/validator");
 const createAuthor = async function (req, res) {
 	try {
 		// Destructuring from req.body
-		const { fname, lname, title, email, password } = req.body;
+		let { fname, lname, title, email, password } = req.body;
+
+		//// using trim to remove additional empty space
+		
+		
+		
+
+		/// Validation Starts
+		if(!validation.isValidRequestBody(req.body)){
+			return res.status(400).send({status:false, msg:"Please provide author's detail"})
+		}
 
 		// Validating if the first name is present and type is string or not
 		if (!fname)
@@ -42,6 +52,7 @@ const createAuthor = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "email must contain letters only" });
+		email=email.trim()
 		if (!validation.isValidEmail(email))
 			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 		const repeatEmail = await authorModel.find({ email: email });
@@ -59,6 +70,7 @@ const createAuthor = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "password must contain letters only" });
+		password=password.trim()
 		if (password.length < 8 || password.length > 19)
 			return res.status(400).send({
 				status: false,
@@ -69,6 +81,8 @@ const createAuthor = async function (req, res) {
 				status: false,
 				msg: "Password must contain uppercases,lowercase,special characters and numerics.",
 			});
+
+		//// Validation Ends
 
 		// After validating we are creating a new author
 		const newAuthor = await authorModel.create(req.body);
@@ -82,10 +96,15 @@ const createAuthor = async function (req, res) {
 	}
 };
 
+
+
+
+
+
 // Function for author login and token generation
 const authorLogin = async function (req, res) {
 	try {
-		const { email, password } = req.body;
+		let { email, password } = req.body;
 		const secretkey = "plutoniumFunctionup$%(())()*)+/";
 
 		// Validating if the email is present or not and is a valid email or not
@@ -97,6 +116,7 @@ const authorLogin = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "email must contain letters only" });
+		email=email.trim()
 		if (!validation.isValidEmail(email))
 			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 

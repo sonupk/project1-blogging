@@ -26,9 +26,9 @@ const userAuthentication = async function (req, res, next) {
 const userAuthorisation = async function (req, res, next) {
 	try {
 		let authorId = req["x-api-key"].authorId;
-		let blogId = req.params.blogId;
-		let authorIdFromBody = req.body.authorId;
 
+		// If blogId is present in pathParam
+		let blogId = req.params.blogId;
 		if (blogId) {
 			// Validation for blogId
 			if (!Validation.isValidObjectId(blogId)) {
@@ -48,6 +48,9 @@ const userAuthorisation = async function (req, res, next) {
 				return res.status(404).send({ status: false, msg: "Blog Not Found" });
 		}
 
+
+		// If authorId is present in requestBody
+		let authorIdFromBody = req.body.authorId;
 		if (authorIdFromBody) {
 			// Validation for authorId we are getting from the body
 			if (!Validation.isValidObjectId(authorIdFromBody)) {

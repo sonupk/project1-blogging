@@ -31,10 +31,22 @@ const createBlogValidation = async function (req, res, next) {
 	next();
 };
 
+
+
+
+
 // This validation is used for creating and updating blog. For creating blog this comes after the createBlogValidation function. Below function checks the field present in the body has proper value type or not, with the help of validation functions present in the validator file
 const BlogValidation = async function (req, res, next) {
 	try {
 		const requestBody = req.body;
+
+		// For keys present in req.query we check the length of its value and if its 0 then we throw an error saying please provide a value
+		for (keys of Object.keys(req.body)) {
+			if (req.body[keys].length === 0)
+				return res
+					.status(400)
+					.send({ status: false, msg: `Please provide ${keys}` });
+		}
 
 		// Checking the title from req.body is a valid and non-empty string
 		if (requestBody.title) {
@@ -64,22 +76,29 @@ const BlogValidation = async function (req, res, next) {
 		if (requestBody.tags) {
 			// Checking the tags from req.body is a valid and non-empty string
 			if (validation.isValidString(requestBody.tags)) {
+
 				// This makes the tags into an array if the input is string
 				arrOfTags = validation.makeArray(requestBody.tags);
+
 				// This creates a new unique array of tags removing any duplicate values from the input
 				let uniqueArrOfTags = [...new Set(arrOfTags)];
+
 				// If the unique array is empty it will send an error: Invalid tags
 				if (uniqueArrOfTags.length == 0)
 					return res.status(400).send({ status: false, msg: "Invalid tags" });
 				requestBody.tags = [...uniqueArrOfTags];
 			} else if (validation.isValidArray(requestBody.tags)) {
+
 				// If the input of array is in an array this will flatten it into a single array
 				arrOfTags = validation.flattenArray(requestBody.tags);
+
 				// If the input array is empty it will send an error: Invalid tags
 				if (arrOfTags.length === 0)
 					return res.status(400).send({ status: false, msg: "Invalid tags" });
+
 				// This creates a new unique array of tags removing any duplicate values from the input
 				let uniqueArrOfTags = [...new Set(arrOfTags)];
+
 				// We are setting the tags array to the key of requestBody object
 				requestBody.tags = [...uniqueArrOfTags];
 			} else {
@@ -89,12 +108,16 @@ const BlogValidation = async function (req, res, next) {
 
 		// Validation of subcategory
 		if (requestBody.subcategory) {
+
 			// Checking the subcategory from req.body is a valid and non-empty string 
 			if (validation.isValidString(requestBody.subcategory)) {
+
 				// This makes the subcategory into an array if the input is string
 				let arrOfSubcategory = validation.makeArray(requestBody.subcategory);
+
 				// This creates a new unique array of subcategory removing any duplicate values from the input
 				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
+
 				// If the unique array is empty it will send an error: Invalid subcategory
 				if (uniqueArrOfSubcategory.length == 0)
 					return res
@@ -102,15 +125,19 @@ const BlogValidation = async function (req, res, next) {
 						.send({ status: false, msg: "Invalid subcategory" });
 				requestBody.subcategory = [...uniqueArrOfSubcategory];
 			} else if (validation.isValidArray(requestBody.subcategory)) {
+
 				// If the input of array is in an array this will flatten it into a single array
 				let arrOfSubcategory = validation.flattenArray(requestBody.subcategory);
+
 				// If the input array is empty it will send an error: Invalid subcategory
 				if (arrOfSubcategory.length === 0)
 					return res
 						.status(400)
 						.send({ status: false, msg: "Invalid subcategory" });
+
 				// This creates a new unique array of subcategory removing any duplicate values from the input
 				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
+
 				// We are setting the subcategory array to the key of requestBody object
 				requestBody.subcategory = [...uniqueArrOfSubcategory];
 			} else {
@@ -131,11 +158,16 @@ const BlogValidation = async function (req, res, next) {
 	next();
 };
 
+
+
+
+
 // This validation is used for fetching and deleting blogs by query params.
 const BlogValidationFromQuery = async function (req, res, next) {
 	try {
 		// Destructuring from the req.query
 		const { authorId, category, tags, subcategory } = req.query;
+
 		// Creating an array of keys we expect to get from the req.query
 		const queryArray = ["authorId", "category", "tags", "subcategory"];
 
@@ -175,35 +207,37 @@ const BlogValidationFromQuery = async function (req, res, next) {
 					.status(400)
 					.send({ status: false, msg: "category is invalid" });
 			}
-			dynamicObj.category = category.toLowerCase();
+			dynamicObj.category = category
 		}
 
 		// Checks whether the tags is/are a valid string or not
 		if (tags) {
 			if (validation.isValidString(tags)) {
 				// For more than one tags we are creating an array of tags and converting them to lowercase according to our database
-				arrOfTags = validation.makeArray(tags.toLowerCase());
+				let arrOfTags = validation.makeArray(tags);
 				if (arrOfTags.length == 0) {
 					return res.status(400).send({ status: false, msg: "Invalid tags" });
 				}
+				// Creating a key in the dynamicObj and a value {in:[...tags]} to check for any blogs containing the provided tags
+				dynamicObj.tags = { $in:[...arrOfTags] };
 			}
-			// Creating a key in the dynamicObj and a value {in:[...tags]} to check for any blogs containing the provided tags
-			dynamicObj.tags = { $in: arrOfTags };
+			
 		}
 
 		// Checks whether the subcategory is/are a valid string or not
 		if (subcategory) {
 			if (validation.isValidString(subcategory)) {
 				// For more than one subcategory we are creating an array of subcategory and converting them to lowercase according to our database
-				arrOfsubcategory = validation.makeArray(subcategory.toUpperCase());
-				if (arrOfsubcategory.length == 0) {
+				let arrOfSubcategory = validation.makeArray(subcategory);
+				if (arrOfSubcategory.length == 0) {
 					return res
 						.status(400)
 						.send({ status: false, msg: "Invalid subcategory" });
 				}
+				// Creating a key in the dynamicObj and a value {in:[...arrOfSubcategory]} to check for any blogs containing the provided subcategory
+				dynamicObj.subcategory = { $in: [...arrOfSubcategory] };
 			}
-			// Creating a key in the dynamicObj and a value {in:[...subcategory]} to check for any blogs containing the provided subcategory
-			dynamicObj.subcategory = { $in: arrOfsubcategory };
+			
 		}
 
 		// We create a new key in the request object called modifiedQuery and then use it later on to get the data passed on from this blogValidationFromQuery function

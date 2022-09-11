@@ -64,8 +64,14 @@ const flattenArray = function (data) {
 	return arrayOfInput;
 };
 
+// Check for valid request body
+const isValidRequestBody = function(data){
+    return Object.keys(data).length!=0
+}
+
 module.exports = {
 	isValidEmail,
+	isValidRequestBody,
 	isValidObjectId,
 	isValidPassword,
 	isValidString,
