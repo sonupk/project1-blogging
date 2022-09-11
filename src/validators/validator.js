@@ -50,7 +50,7 @@ const isValidArray = function (data) {
 const makeArray = function (data) {
 	let arrayOfInput = data
 		.split(",")
-		.map((x) => x.trim())
+		.map((x) => x.toLowerCase().trim())
 		.filter((x) => x.length > 0);
 	return arrayOfInput;
 };
@@ -58,7 +58,7 @@ const makeArray = function (data) {
 // To flatten joined strings to individual strings into an array
 const flattenArray = function (data) {
 	let arrayOfInput = data
-		.map((x) => [x.split(",").map((x) => x.trim())])
+		.map((x) => [x.split(",").map((x) => x.trim().toLowerCase())])
 		.flat(Infinity)
 		.filter((x) => x.length > 0);
 	return arrayOfInput;

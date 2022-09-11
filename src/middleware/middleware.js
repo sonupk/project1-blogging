@@ -144,8 +144,9 @@ const BlogValidationFromQuery = async function (req, res, next) {
 			if (!queryArray.includes(key))
 				return res
 					.status(400)
-					.send({ status: false, msg: `Invalid query parameter: ${key}` });
+					.send({ status: false, msg: `Query parameters can only be among these: ${queryArray.join(", ")}` });
 		}
+
 		// For keys present in req.query we check the length of its value and if its 0 then we throw an error saying please provide a value
 		for (keys of Object.keys(req.query)) {
 			if (req.query[keys].length === 0)
@@ -153,6 +154,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 					.status(400)
 					.send({ status: false, msg: `Please provide ${keys}` });
 		}
+
 		// Creating a dynamic object which will be updated with key and value we are getting from req.query
 		const dynamicObj = {};
 

@@ -26,8 +26,8 @@ const getBlogs = async function (req, res) {
 		}
 		res.status(200).send({
 			status: true,
-			data: allBlogs,
 			msg: `${allBlogs.length} blog(s) found`,
+			data: allBlogs
 		});
 	} catch (error) {
 		return res.status(500).send({ status: false, msg: error.message });
