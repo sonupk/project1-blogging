@@ -1,109 +1,162 @@
 const validation = require("../validators/validator");
 
+//** This validation is used for creating blogs only. This checks whether the mandatory fields are present in the body or not and if absent sends a msg to provide the field */
 const createBlogValidation = async function (req, res, next) {
-	let { title, body, authorId, category } = req.body;
+	try {
+		let { title, body, authorId, category } = req.body;
 
-	if (!title)
-		return res
-			.status(400)
-			.send({ status: false, msg: "title must be present" });
+		if (!title)
+			return res
+				.status(400)
+				.send({ status: false, msg: "title must be present" });
 
-	if (!body)
-		return res.status(400).send({ status: false, msg: "body must be present" });
+		if (!body)
+			return res
+				.status(400)
+				.send({ status: false, msg: "body must be present" });
 
-	if (!authorId)
-		return res
-			.status(400)
-			.send({ status: false, msg: "authorId must be present" });
+		if (!authorId)
+			return res
+				.status(400)
+				.send({ status: false, msg: "authorId must be present" });
 
-	if (!category)
-		return res
-			.status(400)
-			.send({ status: false, msg: "category must be present" });
+		if (!category)
+			return res
+				.status(400)
+				.send({ status: false, msg: "category must be present" });
+	} catch (error) {
+		res.status(500).send({ status: false, msg: error.message });
+	}
 
 	next();
 };
 
+//** This validation is used for creating and updating blog. For creating blog this comes after the createBlogValidation function. Below function checks the field present in the body has proper value type or not, with the help of validation functions present in the validator file */
 const BlogValidation = async function (req, res, next) {
-	const requestBody = req.body;
+	try {
+		const requestBody = req.body;
 
-	//1.validation for title
-	if (requestBody.title) {
-		if (!validation.isValidString(requestBody.title))
-			return res
-				.status(400)
-				.send({ status: false, msg: "title must contain letters" });
-	}
-
-	//2.validation for body
-	if (requestBody.body) {
-		if (!validation.isValidString(requestBody.body))
-			return res
-				.status(400)
-				.send({ status: false, msg: "body must contain letters" });
-	}
-
-	//3.validation for category
-	if (requestBody.category) {
-		if (!validation.isValidString(requestBody.category))
-			return res
-				.status(400)
-				.send({ status: false, msg: "category must contain letters" });
-	}
-
-	//4.validation for tags
-	if (requestBody.tags) {
-		if (validation.isValidString(requestBody.tags)) {
-			arrOfTags = validation.makeArray(requestBody.tags);
-			let uniqueArrOfTags = [...new Set(arrOfTags)];
-			if (uniqueArrOfTags.length == 0)
-				return res.status(400).send({ status: false, msg: "Invalid tags" });
-			requestBody.tags = [...uniqueArrOfTags];
-		} else if (validation.isValidArray(requestBody.tags)) {
-			arrOfTags = validation.flattenArray(requestBody.tags);
-			if (arrOfTags.length === 0)
-				return res.status(400).send({ status: false, msg: "Invalid tags" });
-			let uniqueArrOfTags = [...new Set(arrOfTags)];
-			requestBody.tags = [...uniqueArrOfTags];
-		} else {
-			return res.status(400).send({ status: false, msg: "Invalid tags" });
+		//** Checking the title from req.body is a valid and non-empty string */
+		if (requestBody.title) {
+			if (!validation.isValidString(requestBody.title))
+				return res
+					.status(400)
+					.send({ status: false, msg: "title must contain letters" });
 		}
-	}
 
-	//5.validation for subcategory
-	if (requestBody.subcategory) {
-		if (validation.isValidString(requestBody.subcategory)) {
-			let arrOfSubcategory = validation.makeArray(requestBody.subcategory);
-			let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
-			if (uniqueArrOfSubcategory.length == 0)
+		//** Checking the body from req.body is a valid and non-empty string */
+		if (requestBody.body) {
+			if (!validation.isValidString(requestBody.body))
+				return res
+					.status(400)
+					.send({ status: false, msg: "body must contain letters" });
+		}
+
+		//** Checking the category from req.body is a valid and non-empty string */
+		if (requestBody.category) {
+			if (!validation.isValidString(requestBody.category))
+				return res
+					.status(400)
+					.send({ status: false, msg: "category must contain letters" });
+		}
+
+		//** Validation of tags */
+		if (requestBody.tags) {
+			//** Checking the tags from req.body is a valid and non-empty string */
+			if (validation.isValidString(requestBody.tags)) {
+				//** This makes the tags into an array if the input is string */
+				arrOfTags = validation.makeArray(requestBody.tags);
+				//** This creates a new unique array of tags removing any duplicate values from the input */
+				let uniqueArrOfTags = [...new Set(arrOfTags)];
+				//** If the unique array is empty it will send an error: Invalid tags */
+				if (uniqueArrOfTags.length == 0)
+					return res.status(400).send({ status: false, msg: "Invalid tags" });
+				requestBody.tags = [...uniqueArrOfTags];
+			} else if (validation.isValidArray(requestBody.tags)) {
+				//** If the input of array is in an array this will flatten it into a single array */
+				arrOfTags = validation.flattenArray(requestBody.tags);
+				//** If the input array is empty it will send an error: Invalid tags */
+				if (arrOfTags.length === 0)
+					return res.status(400).send({ status: false, msg: "Invalid tags" });
+				//** This creates a new unique array of tags removing any duplicate values from the input */
+				let uniqueArrOfTags = [...new Set(arrOfTags)];
+				//** We are setting the tags array to the key of requestBody object */
+				requestBody.tags = [...uniqueArrOfTags];
+			} else {
+				return res.status(400).send({ status: false, msg: "Invalid tags" });
+			}
+		}
+
+		//** Validation of subcategory */
+		if (requestBody.subcategory) {
+			//** Checking the subcategory from req.body is a valid and non-empty string  */
+			if (validation.isValidString(requestBody.subcategory)) {
+				//** This makes the subcategory into an array if the input is string */
+				let arrOfSubcategory = validation.makeArray(requestBody.subcategory);
+				//** This creates a new unique array of subcategory removing any duplicate values from the input */
+				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
+				//** If the unique array is empty it will send an error: Invalid subcategory */
+				if (uniqueArrOfSubcategory.length == 0)
+					return res
+						.status(400)
+						.send({ status: false, msg: "Invalid subcategory" });
+				requestBody.subcategory = [...uniqueArrOfSubcategory];
+			} else if (validation.isValidArray(requestBody.subcategory)) {
+				//** If the input of array is in an array this will flatten it into a single array */
+				let arrOfSubcategory = validation.flattenArray(requestBody.subcategory);
+				//** If the input array is empty it will send an error: Invalid subcategory */
+				if (arrOfSubcategory.length === 0)
+					return res
+						.status(400)
+						.send({ status: false, msg: "Invalid subcategory" });
+				//** This creates a new unique array of subcategory removing any duplicate values from the input */
+				let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
+				//** We are setting the subcategory array to the key of requestBody object */
+				requestBody.subcategory = [...uniqueArrOfSubcategory];
+			} else {
 				return res
 					.status(400)
 					.send({ status: false, msg: "Invalid subcategory" });
-			requestBody.subcategory = [...uniqueArrOfSubcategory];
-		} else if (validation.isValidArray(requestBody.subcategory)) {
-			let arrOfSubcategory = validation.flattenArray(requestBody.subcategory);
-			if (arrOfSubcategory.length === 0)
-				return res
-					.status(400)
-					.send({ status: false, msg: "Invalid subcategory" });
-			let uniqueArrOfSubcategory = [...new Set(arrOfSubcategory)];
-			requestBody.subcategory = [...uniqueArrOfSubcategory];
-		} else {
-			return res
-				.status(400)
-				.send({ status: false, msg: "Invalid subcategory" });
+			}
 		}
+
+		//**If isPublished is set true in the req.body then we change the set a key publishedAt and provide the date of creating the blog */
+		if (requestBody.isPublished === true) requestBody.publishedAt = new Date();
+
+		//** We create a new key in the request object called modifiedBody and then use it later on to get the data passed on from this blogValidation function */
+		req.modifiedBody = requestBody;
+	} catch (error) {
+		res.status(500).send({ status: false, msg: error.message });
 	}
-	if (requestBody.isPublished === true) requestBody.publishedAt = new Date();
-	req.modifiedBody = requestBody;
 	next();
 };
 
+//** This validation is used for fetching and deleting blogs by query params. */
 const BlogValidationFromQuery = async function (req, res, next) {
 	try {
+		//** Destructuring from the req.query */
 		const { authorId, category, tags, subcategory } = req.query;
+		//** Creating an array of keys we expect to get from the req.query */
+		const queryArray = ["authorId", "category", "tags", "subcategory"];
+
+		//** For keys present in req.query we are checking if the queryArray includes that key or not. If there is any other key besides the elements of the array then we throw an error */
+		for (key in req.query) {
+			if (!queryArray.includes(key))
+				return res
+					.status(400)
+					.send({ status: false, msg: `Invalid query parameter: ${key}` });
+		}
+		//** For keys present in req.query we check the length of its value and if its 0 then we throw an error saying please provide a value */
+		for (keys of Object.keys(req.query)) {
+			if (req.query[keys].length === 0)
+				return res
+					.status(400)
+					.send({ status: false, msg: `Please provide ${keys}` });
+		}
+		//** Creating a dynamic object which will be updated with key and value we are getting from req.query */
 		const dynamicObj = {};
 
+		//** Checks whether the authorId is a valid ObjectId or not */
 		if (authorId) {
 			if (!validation.isValidObjectId(authorId)) {
 				return res
@@ -113,6 +166,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 			dynamicObj.authorId = authorId;
 		}
 
+		//** Checks whether the category is a valid string or not */
 		if (category) {
 			if (!validation.isValidString(category)) {
 				return res
@@ -122,18 +176,23 @@ const BlogValidationFromQuery = async function (req, res, next) {
 			dynamicObj.category = category.toLowerCase();
 		}
 
+		//** Checks whether the tags is/are a valid string or not */
 		if (tags) {
 			if (validation.isValidString(tags)) {
+				//** For more than one tags we are creating an array of tags and converting them to lowercase according to our database */
 				arrOfTags = validation.makeArray(tags.toLowerCase());
 				if (arrOfTags.length == 0) {
 					return res.status(400).send({ status: false, msg: "Invalid tags" });
 				}
 			}
+			//** Creating a key in the dynamicObj and a value {in:[...tags]} to check for any blogs containing the provided tags */
 			dynamicObj.tags = { $in: arrOfTags };
 		}
 
+		//** Checks whether the subcategory is/are a valid string or not */
 		if (subcategory) {
 			if (validation.isValidString(subcategory)) {
+				//** For more than one subcategory we are creating an array of subcategory and converting them to lowercase according to our database */
 				arrOfsubcategory = validation.makeArray(subcategory.toUpperCase());
 				if (arrOfsubcategory.length == 0) {
 					return res
@@ -141,9 +200,11 @@ const BlogValidationFromQuery = async function (req, res, next) {
 						.send({ status: false, msg: "Invalid subcategory" });
 				}
 			}
+			//** Creating a key in the dynamicObj and a value {in:[...subcategory]} to check for any blogs containing the provided subcategory */
 			dynamicObj.subcategory = { $in: arrOfsubcategory };
 		}
 
+		//** We create a new key in the request object called modifiedQuery and then use it later on to get the data passed on from this blogValidationFromQuery function */
 		req.modifiedQuery = dynamicObj;
 
 		next();

@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const blogModel = require("../models/blogModel");
 const Validation = require("../validators/validator");
 
+//** User authentication */
 const userAuthentication = async function (req, res, next) {
 	try {
 		const secretkey = "plutoniumFunctionup$%(())()*)+/";
@@ -21,6 +22,7 @@ const userAuthentication = async function (req, res, next) {
 	}
 };
 
+//** User authoristion from body and query */
 const userAuthorisation = async function (req, res, next) {
 	try {
 		let authorId = req["x-api-key"].authorId;
@@ -28,11 +30,12 @@ const userAuthorisation = async function (req, res, next) {
 		let authorIdFromBody = req.body.authorId;
 
 		if (blogId) {
-			//Validation for blogId
+			//** Validation for blogId */
 			if (!Validation.isValidObjectId(blogId)) {
 				res.status(400).send({ status: false, msg: "Invalid blogID" });
 				return;
 			}
+			//** Finding blog from the id and authorising the authorId present in the blog with the authorId from the token */
 			let blog = await blogModel.findById(blogId);
 			if (blog) {
 				if (blog.authorId.toString() !== authorId)
@@ -40,11 +43,13 @@ const userAuthorisation = async function (req, res, next) {
 						status: false,
 						msg: "Unauthorised",
 					});
-			}
-			if (!blog)
+			} else
+			//** If user is authorised but no blogs are found */
 				return res.status(404).send({ status: false, msg: "Blog Not Found" });
 		}
+
 		if (authorIdFromBody) {
+			//** Validation for authorId we are getting from the body */
 			if (!Validation.isValidObjectId(authorIdFromBody)) {
 				res.status(400).send({ status: false, msg: "Invalid authorID" });
 				return;
