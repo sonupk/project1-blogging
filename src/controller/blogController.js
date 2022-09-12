@@ -1,3 +1,4 @@
+const { findById } = require("../models/authorModel");
 const blogModel = require("../models/blogModel");
 
 // Function for creating a blog
@@ -27,7 +28,7 @@ const getBlogs = async function (req, res) {
 		res.status(200).send({
 			status: true,
 			msg: `${allBlogs.length} blog(s) found`,
-			data: allBlogs
+			data: allBlogs,
 		});
 	} catch (error) {
 		return res.status(500).send({ status: false, msg: error.message });
@@ -42,10 +43,13 @@ const updateBlog = async function (req, res) {
 		// Incoming modifiedBody object from middleware in req.modifiedBody which we are storing in updateData
 		const updateData = req.modifiedBody;
 		//Creating a dynamic object for storing key and value pairs incoming from body
-		let obj = {
-			isPublished: true,
-			publishedAt: new Date(),
-		};
+		let obj = {};
+
+		const ifPublished = await findById(blogId);
+		if (ifPublished.isPublished === false) {
+			obj.isPublished = true;
+			obj.publishedAt = new Date();
+		}
 		// "$addToSet" adds only those elements that are not already present
 		obj["$addToSet"] = {};
 
@@ -98,7 +102,6 @@ const deleteFromQuery = async function (req, res) {
 		// Incoming modifiedQuery object from middleware in req.modifiedQuery is stored in a new object data. We are also setting isDeleted false and isPublished false for getting those blogs
 		let data = req.modifiedQuery;
 		data.isDeleted = false;
-		data.isPublished = false;
 
 		// If authorId is present in query params we are checking if the authorId is matching with the one present in the token
 		if (data.authorId) {

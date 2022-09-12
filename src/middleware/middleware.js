@@ -31,10 +31,6 @@ const createBlogValidation = async function (req, res, next) {
 	next();
 };
 
-
-
-
-
 // This validation is used for creating and updating blog. For creating blog this comes after the createBlogValidation function. Below function checks the field present in the body has proper value type or not, with the help of validation functions present in the validator file
 const BlogValidation = async function (req, res, next) {
 	try {
@@ -76,7 +72,6 @@ const BlogValidation = async function (req, res, next) {
 		if (requestBody.tags) {
 			// Checking the tags from req.body is a valid and non-empty string
 			if (validation.isValidString(requestBody.tags)) {
-
 				// This makes the tags into an array if the input is string
 				arrOfTags = validation.makeArray(requestBody.tags);
 
@@ -88,7 +83,6 @@ const BlogValidation = async function (req, res, next) {
 					return res.status(400).send({ status: false, msg: "Invalid tags" });
 				requestBody.tags = [...uniqueArrOfTags];
 			} else if (validation.isValidArray(requestBody.tags)) {
-
 				// If the input of array is in an array this will flatten it into a single array
 				arrOfTags = validation.flattenArray(requestBody.tags);
 
@@ -108,10 +102,8 @@ const BlogValidation = async function (req, res, next) {
 
 		// Validation of subcategory
 		if (requestBody.subcategory) {
-
-			// Checking the subcategory from req.body is a valid and non-empty string 
+			// Checking the subcategory from req.body is a valid and non-empty string
 			if (validation.isValidString(requestBody.subcategory)) {
-
 				// This makes the subcategory into an array if the input is string
 				let arrOfSubcategory = validation.makeArray(requestBody.subcategory);
 
@@ -125,7 +117,6 @@ const BlogValidation = async function (req, res, next) {
 						.send({ status: false, msg: "Invalid subcategory" });
 				requestBody.subcategory = [...uniqueArrOfSubcategory];
 			} else if (validation.isValidArray(requestBody.subcategory)) {
-
 				// If the input of array is in an array this will flatten it into a single array
 				let arrOfSubcategory = validation.flattenArray(requestBody.subcategory);
 
@@ -158,25 +149,33 @@ const BlogValidation = async function (req, res, next) {
 	next();
 };
 
-
-
-
-
 // This validation is used for fetching and deleting blogs by query params.
 const BlogValidationFromQuery = async function (req, res, next) {
 	try {
 		// Destructuring from the req.query
-		const { authorId, category, tags, subcategory } = req.query;
+		let { authorId, category, tags, subcategory, unpublished } = req.query;
 
+		if(Object.keys(req.query).length==0) return res.status(400).send({status:false,msg:"Please provide a filter"})
 		// Creating an array of keys we expect to get from the req.query
-		const queryArray = ["authorId", "category", "tags", "subcategory"];
+		const queryArray = [
+			"authorId",
+			"category",
+			"tags",
+			"subcategory",
+			"unpublished",
+		];
 
 		// For keys present in req.query we are checking if the queryArray includes that key or not. If there is any other key besides the elements of the array then we throw an error
 		for (key in req.query) {
 			if (!queryArray.includes(key))
 				return res
 					.status(400)
-					.send({ status: false, msg: `Query parameters can only be among these: ${queryArray.join(", ")}` });
+					.send({
+						status: false,
+						msg: `Query parameters can only be among these: ${queryArray.join(
+							", "
+						)}`,
+					});
 		}
 
 		// For keys present in req.query we check the length of its value and if its 0 then we throw an error saying please provide a value
@@ -207,7 +206,7 @@ const BlogValidationFromQuery = async function (req, res, next) {
 					.status(400)
 					.send({ status: false, msg: "category is invalid" });
 			}
-			dynamicObj.category = category
+			dynamicObj.category = category;
 		}
 
 		// Checks whether the tags is/are a valid string or not
@@ -219,9 +218,8 @@ const BlogValidationFromQuery = async function (req, res, next) {
 					return res.status(400).send({ status: false, msg: "Invalid tags" });
 				}
 				// Creating a key in the dynamicObj and a value {in:[...tags]} to check for any blogs containing the provided tags
-				dynamicObj.tags = { $in:[...arrOfTags] };
+				dynamicObj.tags = { $in: [...arrOfTags] };
 			}
-			
 		}
 
 		// Checks whether the subcategory is/are a valid string or not
@@ -237,9 +235,19 @@ const BlogValidationFromQuery = async function (req, res, next) {
 				// Creating a key in the dynamicObj and a value {in:[...arrOfSubcategory]} to check for any blogs containing the provided subcategory
 				dynamicObj.subcategory = { $in: [...arrOfSubcategory] };
 			}
-			
 		}
 
+		// Checks whether unpublished is a valid string or not and converting to Boolean
+		// if (unpublished) {
+		// 	if (!validation.isValidString(unpublished)) {
+		// 		return res
+		// 			.status(400)
+		// 			.send({ status: false, msg: "unpublished is invalid" });
+		// 	}
+		// 	// unpublished=unpublished.trim()
+		// 	(unpublished!=false)? unpublished=true:unpublished=false
+		// 	dynamicObj.isPublished=unpublished
+		// }
 		// We create a new key in the request object called modifiedQuery and then use it later on to get the data passed on from this blogValidationFromQuery function
 		req.modifiedQuery = dynamicObj;
 

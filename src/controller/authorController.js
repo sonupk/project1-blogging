@@ -8,14 +8,11 @@ const createAuthor = async function (req, res) {
 		// Destructuring from req.body
 		let { fname, lname, title, email, password } = req.body;
 
-		//// using trim to remove additional empty space
-		
-		
-		
-
 		/// Validation Starts
-		if(!validation.isValidRequestBody(req.body)){
-			return res.status(400).send({status:false, msg:"Please provide author's detail"})
+		if (!validation.isValidRequestBody(req.body)) {
+			return res
+				.status(400)
+				.send({ status: false, msg: "Please provide author's detail" });
 		}
 
 		// Validating if the first name is present and type is string or not
@@ -52,7 +49,7 @@ const createAuthor = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "email must contain letters only" });
-		email=email.trim()
+		email = email.trim();
 		if (!validation.isValidEmail(email))
 			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 		const repeatEmail = await authorModel.find({ email: email });
@@ -70,7 +67,7 @@ const createAuthor = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "password must contain letters only" });
-		password=password.trim()
+		password = password.trim();
 		if (password.length < 8 || password.length > 19)
 			return res.status(400).send({
 				status: false,
@@ -96,11 +93,6 @@ const createAuthor = async function (req, res) {
 	}
 };
 
-
-
-
-
-
 // Function for author login and token generation
 const authorLogin = async function (req, res) {
 	try {
@@ -116,7 +108,7 @@ const authorLogin = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, msg: "email must contain letters only" });
-		email=email.trim()
+		email = email.trim();
 		if (!validation.isValidEmail(email))
 			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 
