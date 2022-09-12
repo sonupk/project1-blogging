@@ -239,16 +239,25 @@ const BlogValidationFromQuery = async function (req, res, next) {
 		}
 
 		// Checks whether unpublished is a valid string or not and converting to Boolean
-		unpublished = unpublished.trim()
+		unpublished = unpublished.trim();
 		if (unpublished) {
 			if (!validation.isValidString(unpublished)) {
 				return res
 					.status(400)
 					.send({ status: false, msg: "unpublished is invalid" });
 			}
-			(unpublished == "false")
-				? (unpublished = true)
-				: (unpublished = false);
+			if (unpublished == "false") {
+				unpublished = true;
+			} else if (unpublished == "true") {
+				unpublished = false;
+			} else {
+				return res
+					.status(400)
+					.send({
+						status: false,
+						msg: "Please provide either true or false for unpublished",
+					});
+			}
 			dynamicObj.isPublished = unpublished;
 		}
 		// We create a new key in the request object called modifiedQuery and then use it later on to get the data passed on from this blogValidationFromQuery function
