@@ -155,7 +155,10 @@ const BlogValidationFromQuery = async function (req, res, next) {
 		// Destructuring from the req.query
 		let { authorId, category, tags, subcategory, unpublished } = req.query;
 
-		if(Object.keys(req.query).length==0) return res.status(400).send({status:false,msg:"Please provide a filter"})
+		if (Object.keys(req.query).length == 0)
+			return res
+				.status(400)
+				.send({ status: false, msg: "Please provide a filter" });
 		// Creating an array of keys we expect to get from the req.query
 		const queryArray = [
 			"authorId",
@@ -168,14 +171,12 @@ const BlogValidationFromQuery = async function (req, res, next) {
 		// For keys present in req.query we are checking if the queryArray includes that key or not. If there is any other key besides the elements of the array then we throw an error
 		for (key in req.query) {
 			if (!queryArray.includes(key))
-				return res
-					.status(400)
-					.send({
-						status: false,
-						msg: `Query parameters can only be among these: ${queryArray.join(
-							", "
-						)}`,
-					});
+				return res.status(400).send({
+					status: false,
+					msg: `Query parameters can only be among these: ${queryArray.join(
+						", "
+					)}`,
+				});
 		}
 
 		// For keys present in req.query we check the length of its value and if its 0 then we throw an error saying please provide a value
@@ -238,16 +239,18 @@ const BlogValidationFromQuery = async function (req, res, next) {
 		}
 
 		// Checks whether unpublished is a valid string or not and converting to Boolean
-		// if (unpublished) {
-		// 	if (!validation.isValidString(unpublished)) {
-		// 		return res
-		// 			.status(400)
-		// 			.send({ status: false, msg: "unpublished is invalid" });
-		// 	}
-		// 	// unpublished=unpublished.trim()
-		// 	(unpublished!=false)? unpublished=true:unpublished=false
-		// 	dynamicObj.isPublished=unpublished
-		// }
+		unpublished = unpublished.trim()
+		if (unpublished) {
+			if (!validation.isValidString(unpublished)) {
+				return res
+					.status(400)
+					.send({ status: false, msg: "unpublished is invalid" });
+			}
+			(unpublished == "false")
+				? (unpublished = true)
+				: (unpublished = false);
+			dynamicObj.isPublished = unpublished;
+		}
 		// We create a new key in the request object called modifiedQuery and then use it later on to get the data passed on from this blogValidationFromQuery function
 		req.modifiedQuery = dynamicObj;
 
