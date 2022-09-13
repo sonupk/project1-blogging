@@ -1,91 +1,88 @@
 const authorModel = require("../models/authorModel");
 const jwt = require("jsonwebtoken");
-const secretkey = "plutoniumFunctionup$%(())()*)+/";
 const validation = require("../validators/validator");
 
+// Function for creating author
 const createAuthor = async function (req, res) {
 	try {
-		const requestBody = req.body;
+		// Destructuring from req.body
+		let { fname, lname, title, email, password } = req.body;
 
-		// Extract Params
-		const { fname, lname, title, email, password } = requestBody;
-
-		//Validation starts
-		//1.validation on fname
-		if (!fname) {
-			res.status(400).send({ status: false, msg: "fname required" });
-			return;
+		/// Validation Starts
+		if (!validation.isValidRequestBody(req.body)) {
+			return res
+				.status(400)
+				.send({ status: false, msg: "Please provide author's detail" });
 		}
-		if (!validation.isValidString(fname)) {
-			res
+
+		// Validating if the first name is present and type is string or not
+		if (!fname)
+			return res.status(400).send({ status: false, msg: "fname required" });
+		if (!validation.isValidString(fname))
+			return res
 				.status(400)
 				.send({ status: false, msg: "fname must contain letters" });
-			return;
-		}
 
-		//2.validation on lname
-		if (!lname) {
-			res.status(400).send({ status: false, msg: "lname required" });
-			return;
-		}
-		if (!validation.isValidString(lname)) {
-			res
+		// Validating if the last name is present and type is string or not
+		if (!lname)
+			return res.status(400).send({ status: false, msg: "lname required" });
+		if (!validation.isValidString(lname))
+			return res
 				.status(400)
 				.send({ status: false, msg: "lname must contain letters only" });
-			return;
-		}
 
-		//3.validation on title
-		if (!title) {
-			res.status(400).send({ status: false, msg: "title required" });
-			return;
-		}
-		if (!validation.isValidTitle(title)) {
-			res.status(400).send({
+		// Validating if the title is present and type is string or not. Also if the title is among the enumerated values or not
+		if (!title)
+			return res.status(400).send({ status: false, msg: "title required" });
+		if (!validation.isValidTitle(title))
+			return res.status(400).send({
 				status: false,
 				msg: "Title must contain only one of these-'Mr','Mrs','Miss'",
 			});
-			return;
-		}
 
-		//4.validation on email
-		if (!email) {
-			res.status(400).send({ status: false, msg: "email must be present" });
-			return;
-		}
-		if (!validation.isValidEmail(email)) {
-			res.status(400).send({ status: false, msg: "Invalid emailID" });
-			return;
-		}
+		// Validating if the email is present or not and is a valid email or not
+		if (!email)
+			return res
+				.status(400)
+				.send({ status: false, msg: "email must be present" });
+		if (!validation.isValidString(email))
+			return res
+				.status(400)
+				.send({ status: false, msg: "email must contain letters only" });
+		email = email.trim();
+		if (!validation.isValidEmail(email))
+			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 		const repeatEmail = await authorModel.find({ email: email });
-		if (repeatEmail.length !== 0) {
-			res.status(400).send({ status: false, msg: "email ID already exist" });
-			return;
-		}
+		if (repeatEmail.length !== 0)
+			return res
+				.status(400)
+				.send({ status: false, msg: "email ID already exist" });
 
-		//5.validation on password
-		if (!password) {
-			res.status(400).send({ status: false, msg: "password must be present" });
-			return;
-		}
-		if (password.length < 8 || password.length > 19) {
-			res.status(400).send({
+		// Validating if the password is present or not and is a strong password
+		if (!password)
+			return res
+				.status(400)
+				.send({ status: false, msg: "password must be present" });
+		if (!validation.isValidString(password))
+			return res
+				.status(400)
+				.send({ status: false, msg: "password must contain letters only" });
+		password = password.trim();
+		if (password.length < 8 || password.length > 19)
+			return res.status(400).send({
 				status: false,
 				mesg: "password must be in between 8 to 19 characters",
 			});
-			return;
-		}
-
-		if (!validation.isValidPassword(password)) {
-			res.status(400).send({
+		if (!validation.isValidPassword(password))
+			return res.status(400).send({
 				status: false,
 				msg: "Password must contain uppercases,lowercase,special characters and numerics.",
 			});
-			return;
-		}
-		// Validation Ends
 
-		const newAuthor = await authorModel.create(requestBody);
+		//// Validation Ends
+
+		// After validating we are creating a new author
+		const newAuthor = await authorModel.create(req.body);
 		res.status(201).send({
 			status: true,
 			mag: "Data created successfully",
@@ -96,38 +93,46 @@ const createAuthor = async function (req, res) {
 	}
 };
 
+// Function for author login and token generation
 const authorLogin = async function (req, res) {
 	try {
-		const requestBody = req.body;
-		const email = requestBody.email;
-		const password = requestBody.password;
+		let { email, password } = req.body;
+		const secretkey = "plutoniumFunctionup$%(())()*)+/";
 
-		//Validation on email
-		if (!email) {
-			res.status(400).send({ status: false, msg: "email must be present" });
-			return;
-		}
-		if (!validation.isValidEmail(email)) {
-			res.status(400).send({ status: false, msg: "Invalid emailID" });
-			return;
-		}
+		// Validating if the email is present or not and is a valid email or not
+		if (!email)
+			return res
+				.status(400)
+				.send({ status: false, msg: "email must be present" });
+		if (!validation.isValidString(email))
+			return res
+				.status(400)
+				.send({ status: false, msg: "email must contain letters only" });
+		email = email.trim();
+		if (!validation.isValidEmail(email))
+			return res.status(400).send({ status: false, msg: "Invalid emailID" });
 
-		//validation on password
-		if (!password) {
-			res.status(400).send({ status: false, msg: "Password must be present" });
-			console.log(password);
-			return;
-		}
+		// Validating if the password is present or not
+		if (!password)
+			return res
+				.status(400)
+				.send({ status: false, msg: "Password must be present" });
+		if (!validation.isValidString(password))
+			return res
+				.status(400)
+				.send({ status: false, msg: "password must contain letters only" });
 
-		// Checking for authentication
-		obj = {};
-		obj.email = email;
-		obj.password = password;
+		// Creating a dynamic object containing keys email and password with values from the body
+		obj = { email: email, password: password };
+
+		// Checking if the user is present or not or else will throw "Invalid credentials"
 		const author = await authorModel.findOne(obj);
-		if (!author) {
-			res.status(400).send({ status: false, msg: "Invalid Credentials" });
-			return;
-		}
+		if (!author)
+			return res
+				.status(400)
+				.send({ status: false, msg: "Invalid Credentials" });
+
+		// Generating token with authorId in the payload and sending in response body
 		const token = jwt.sign({ authorId: author._id.toString() }, secretkey);
 		res.status(200).send({ status: true, data: token });
 	} catch (err) {
